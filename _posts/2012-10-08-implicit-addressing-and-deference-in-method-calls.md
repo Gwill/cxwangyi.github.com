@@ -3,7 +3,7 @@ layout: post
 title: "Implicit Addressing and Deference in Method Calls"
 description: ""
 category:
-tags: []
+tags: [Go]
 ---
 {% include JB/setup %}
 

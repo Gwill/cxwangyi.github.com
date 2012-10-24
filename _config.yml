@@ -9,12 +9,12 @@ pygments: true
 # Themes are encouraged to use these universal variables
 # so be sure to set them if your theme uses them.
 #
-title : 王益的技术笔记
-tagline: Site Tagline
+title : Yi Wang's Tech Notes
+tagline: =======
 author :
-  name : 王益
-  email : yi.wang.2005 在 gmail.com
-  github : cxwangyi
+  name : Yi Wang
+  email : yi.wang.2005 aat gmail.com
+  github : wangkuiyi
 
 
 # The production_url is only used when full-domain names are needed

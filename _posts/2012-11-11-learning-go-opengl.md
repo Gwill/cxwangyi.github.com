@@ -7,13 +7,13 @@ tags: [Go]
 ---
 {% include JB/setup %}
 
-To program OpenGL using Go, you need the `github.com/chsc/gogl`
-pacakge.  To install it, simply typing
+To program OpenGL using Go, you can use the `github.com/chsc/gogl`
+pacakge.  To install an example of it, simply type
 
      go get github.com/chsc/gogl/examples/gopher
 	 
-If you were prompted with an error about `glfw`, just install it.
-With Mac OS X, typing
+If you were prompted with an error about missing `glfw`, just install
+it.  With Mac OS X, type
 
      brew install glfw
 	 

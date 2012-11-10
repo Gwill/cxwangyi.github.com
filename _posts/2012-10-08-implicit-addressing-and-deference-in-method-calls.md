@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Implicit Addressing and Deference in Method Calls"
+title: "Learning Go: Implicit Addressing and Deference in Method Calls"
 description: ""
 category:
 tags: [Go]

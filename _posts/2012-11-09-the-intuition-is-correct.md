@@ -7,6 +7,8 @@ tags: [statistic]
 ---
 {% include JB/setup %}
 
+*这篇帖子犯了一个低级错误。惭愧惭愧。保留之，以为戒*
+
 《醉汉的脚步》（The Drunkard's Walk）是一本很有意思的统计学科普读物。不过今天感觉其中也有错误。请诸位一起看看。
 
 在第二章《The Law of Truths and Half-Truths》里，第一个例子是说 Kahneman 和 Tversky 的试验（下面简称 K&T 试验）能检测出人类的直觉和统计学基本原理相违背的地方。

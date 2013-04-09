@@ -16,19 +16,18 @@ One of the most interesting points in this paper is the asynchronous
 SGD algorithm, which enables a parallel (distributed) software
 architecture that is scalable and can make use of thousands CPUs.
 
-   > To apply SGD to large data sets, we introduce Downpour SGD, a
-    variant of asynchronous stochastic gradient descent that uses
-    multiple replicas of a single DistBelief model. The basic approach
-    is as follows: We divide the training data into a number of
-    subsets and run a copy of the model on each of these subsets. The
-    models communicate updates through a centralized parameter server,
-    which keeps the current state of all parameters for the model,
-    sharded across many machines (e.g., if we have 10 parameter server
-    shards, each shard is responsible for storing and applying updates
-    to 1/10th of the model parameters) (Figure 2). This approach is
-    asynchronous in two distinct aspects: the model replicas run
-    independently of each other, and the parameter server shards also
-    run independently of one another.
+> To apply SGD to large data sets, we introduce Downpour SGD, a
+variant of asynchronous stochastic gradient descent that uses multiple
+replicas of a single DistBelief model. The basic approach is as
+follows: We divide the training data into a number of subsets and run
+a copy of the model on each of these subsets. The models communicate
+updates through a centralized parameter server, which keeps the
+current state of all parameters for the model, sharded across many
+machines (e.g., if we have 10 parameter server shards, each shard is
+responsible for storing and applying updates to 1/10th of the model
+parameters) (Figure 2). This approach is asynchronous in two distinct
+aspects: the model replicas run independently of each other, and the
+parameter server shards also run independently of one another.
 
 Intuitively, the asynchronous algorithm looks like a hack, or a
 compromise between the effectiveness of the mathematical algorithm and

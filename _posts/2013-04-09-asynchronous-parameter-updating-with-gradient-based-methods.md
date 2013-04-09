@@ -16,7 +16,7 @@ One of the most interesting points in this paper is the asynchronous
 SGD algorithm, which enables a parallel (distributed) software
 architecture that is scalable and can make use of thousands CPUs.
 
-    To apply SGD to large data sets, we introduce Downpour SGD, a
+   > To apply SGD to large data sets, we introduce Downpour SGD, a
     variant of asynchronous stochastic gradient descent that uses
     multiple replicas of a single DistBelief model. The basic approach
     is as follows: We divide the training data into a number of

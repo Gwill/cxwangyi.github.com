@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Install Hadoop YARN 2.2.0 on MacOS X Mavericks"
+title: "GUI Programming Using Go"
 description: ""
 category: 
 tags: []
@@ -13,7 +13,7 @@ Go语言里有个有意思的话题，是如何用Go语言写GUI程序。因为G
 
 我用过几个比较方便的GUI toolkit，包括GTK和Qt。根据这么点儿经验，我赞同Rob Pike对Go语言在GUI编程中的前景：
 
-1. Go支持memory garbage collection。这样可以方便的管理widgets的memory消耗。用过GTK的人应该都被迫理解基于C设计的floating reference机制吧？
+1. Go支持memory garbage collection。这样可以方便的管理widgets的memory消耗。用过GTK的人应该都被迫理解基于C设计的floating reference机制吧？这篇gotk3的作者写的[博客](https://blog.conformal.com/gotk3-gtk3-the-go-way/)，专门介绍了如何基于Go语言重新设计GUI widgets的内存管理机制。值得一读，很有启发！
 
 1. Go的concurrency应该能方便的让GUI不被后台处理拖累，保持界面反应的流畅。大家还记得当年BeOS（要不是Jobs介入，Apple本来要收购的；最后收购了NeXT）吗？它的一个重要特点就是使用multithreading技术保证GUI总是有反应。
 

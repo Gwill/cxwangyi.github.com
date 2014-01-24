@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Why Asynchronous SGD Works Better than Its Synchronous Counterpart?"
+title: "Why Asynchronous SGD Works Great?"
 description: ""
 category:
 tags: []

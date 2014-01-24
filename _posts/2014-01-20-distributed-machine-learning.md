@@ -2,7 +2,7 @@
 layout: post
 title: "分布式机器学习的故事"
 description: ""
-category: 
+category:
 tags: []
 ---
 {% include JB/setup %}
@@ -23,15 +23,15 @@ tags: []
 1. **数学模型要根据架构和数据做修改**。这里有两个原因：
 
     * 因为大数据基本都是长尾分布的，而papers里的模型基本都假设数据是指数分布的（想想用SVD做component analysis其实假设了Gaussian distributed，latent Dirichlet allocation假设了multimonial distribution。）。真正能处理大数据的数学模型，都需要能更好的描述长尾数据。否则，模型训练就是忽视长尾，而只关注从“大头”数据部分挖掘“主流”patterns了。
-    
+
     * 很多机器学习算法（比如MCMC）都不适合并行化。所以往往需要根据模型的特点做一些算法的调整。有时候会是approximation。比如AD-LDA算法是一种并行Gibbs sampling算法，但是只针对LDA模型有效，对其他大部分模型都不收敛，甚至对LDA的很多改进模型也不收敛。
 
 1. **引入更多机器的首要目的不是提升性能，而是能处理更大的数据**。用更多的机器，处理同样大小的数据，期待speedup提高——这是传统并行计算要解决的问题——是multicore、SMP、MPP、GPU还是Beowolf cluster上得分布式计算不重要。在大数据情况下，困难点在问题规模大，数据量大。此时，引入更多机器，是期待能处理更大数据，总时间消耗可以不变甚至慢一点。分布式计算把数据和计算都分不到多台机器上，在存储、I/O、通信和计算上都要消除瓶颈。
 
 上述三个特点，会在实践中要求“一个有价值的算法值得也应该有自己独特的框架”。
-    
+
 ### 概念
-    
+
 在开始说故事之前，先正名几个概念：MPI、MapReduce都是**框架（framework）**。MPICH2和Apache Hadoop分别是这两个框架的**实现（implementations）**。后面还会提到BSP框架，它的一个著名实现是Google Pregel。
 
 MPI这个框架很灵活，对程序结构几乎没有太多约束，以至于大家有时把MPI称为一组**接口（API）**。
@@ -40,7 +40,7 @@ MPI这个框架很灵活，对程序结构几乎没有太多约束，以至于�
 
 ## 故事
 
-### pLSA和MPI
+### pLSA和MPI：大数据的首要目标是“大”而不是“快”
 
 我2007年毕业后加入Google做研究。我们有一个同事叫张栋，他的工作涉及pLSA模型的并行化。这个课题很有价值，因为generalized matrix decomposition实际上是collaborative filtering的generalization，是用户行为分析和文本语义理解的共同基础。几年后的今天，我们都知道这是搜索、推荐和广告这三大互联网平台产品的基础。
 
@@ -62,9 +62,9 @@ MPI的AllReduce操作在很多机器学习系统的开发里都很有用。因�
 
 虽然我们很难让MPI框架做到fault recovery，我们可否让基于MPI的pLSA系统支持fault recovery呢？原则上是可以的——最简易的做法是checkpointing——时不常的把有所进程接收到过的所有消息写入一个分布式文件系统（比如GFS）。或者更直接一点：进程状态和job状态写入GFS。Checkpointing是下文要说到的Pregel框架实现fault recovery的基础。
 
-但是如果一个系统自己实现fault recovery，那还需要MPI做什么呢？做通信？——现代后台系统都用基于HTTP的RPC机制通信了，比如Facebook开发的Thrift和Google的Poppy还有Go语言自带的rpc package。做进程管理？——在开源界没有分布式操作系统的那些年里有价值；可是今天，Google的Borg、AMPLab的Mesos和Yahoo!的YARN都比MPICH2做得更好，考虑更全面，效能更高。
+但是如果一个系统自己实现fault recovery，那还需要MPI做什么呢？做通信？——现代后台系统都用基于HTTP的RPC机制通信了，比如和Google的Stubby、Facebook的Thrift、腾讯的Poppy还有Go语言自带的rpc package。做进程管理？——在开源界没有分布式操作系统的那些年里有价值；可是今天（2013年），Google的Borg、AMPLab的Mesos和Yahoo!的YARN都比MPICH2做得更好，考虑更全面，效能更高。
 
-### LDA和MapReduce
+### LDA和MapReduce：“可扩展”的基础——数据并行。
 
 因为MPI在可扩展性上的限制，	我们可以大致理解为什么Google的并行计算架构上没有实现经典的MPI。同时，我们自然的考虑Google里当时最有名的并行计算框架MapReduce。
 
@@ -74,17 +74,19 @@ pLSA模型的作者Thomas Hoffmann提出的机器学习算法是EM。EM是各种
 
 但是2008年的时候，pLSA已经被新兴的LDA掩盖了。LDA是pLSA的generalization：一方面LDA的hyperparameter设为特定值的时候，就specialize成pLSA了。从工程应用价值的角度看，这个数学方法的generalization，允许我们用一个训练好的模型解释任何一段文本中的语义。而pLSA只能理解训练文本中的语义。（虽然也有ad hoc的方法让pLSA理解新文本的语义，但是大都效率低，并且并不符合pLSA的数学定义。）这就让继续研究pLSA价值不明显了。
 
-另一方面，LDA不能用EM学习了，而需要用更generalized inference算法。学界验证效果最佳的是Gibbs sampling。作为一种MCMC算法（从其中C=Chain），顾名思义，Gibbs sampling是一个顺序过程，按照定义不能被并行化。
+另一方面，LDA不能用EM学习了，而需要用更generalized inference算法。学界验证效果最佳的是Gibbs sampling。作为一种Markov Chain Monte Carlo（MCMC）算法，顾名思义，Gibbs sampling是一个顺序过程，按照定义不能被并行化。
 
-但是2007年的时候，David Newman团队发现，对于LDA这个特定的模型，Gibbs sampling可以被并行化。具体的说，把训练数据拆分成多份，用每一份独立的训练模型。每隔几个Gibbs sampling迭代，这几个局部模型之间做一次同步，得到一个全局模型，并且用这个全局模型替换各个局部模型。这个研究发表在NIPS上，题目是：Distributed Inference for Latent Dirichlet Allocation。
+但是2007年的时候，UC Irvine的David Newman团队发现，对于LDA这个特定的模型，Gibbs sampling可以被并行化。具体的说，把训练数据拆分成多份，用每一份独立的训练模型。每隔几个Gibbs sampling迭代，这几个局部模型之间做一次同步，得到一个全局模型，并且用这个全局模型替换各个局部模型。这个研究发表在NIPS上，题目是：Distributed Inference for Latent Dirichlet Allocation。
 
-这样就允许我们用多个map tasks并行的做Gibbs sampling，然后在reduce phase中作模型的同步。这样，一个训练过程可以表述成一串MapReduce jobs。我用了一周实现实现了这个方法。后来在同事Matthew Stanton的帮助下，优化代码，提升效率。但是，因为每次启动一个MapReduce job，系统都需要重新安排进程；并且每个job都需要访问GFS，效率不高。在当年的Google MapReduce系统中，1/3的时间花在这些杂碎问题上了。后来实习生司宪策在Hadoop上也实现了这个方法。我印象里Hadoop环境下，杂碎事务消耗的时间比例更大。
+上述做法，在2012年Jeff Dean关于distributed deep leearning的[论文](http://research.google.com/archive/large_deep_networks_nips2012.html)中，被称为**data parallelism**（数据并行）。如果一个算法可以做数据并行，很可能就是可扩展（scalable）的了。
+
+David Newman团队的发现允许我们用多个map tasks并行的做Gibbs sampling，然后在reduce phase中作模型的同步。这样，一个训练过程可以表述成一串MapReduce jobs。我用了一周时间在Google MapReduce框架上实现实现和验证了这个方法。后来在同事Matthew Stanton的帮助下，优化代码，提升效率。但是，因为每次启动一个MapReduce job，系统都需要重新安排进程（re-schedule）；并且每个job都需要访问GFS，效率不高。在当年的Google MapReduce系统中，1/3的时间花在这些杂碎问题上了。后来实习生司宪策在Hadoop上也实现了这个方法。我印象里Hadoop环境下，杂碎事务消耗的时间比例更大。
 
 随后白红杰在我们的代码基础上修改了数据结构，使其更适合MPI的AllReduce操作。这样就得到了一个高效率的LDA实现。我们把用MapReduce和MPI实现的LDA的Gibbs sampling算法发表在[这篇论文](http://plda.googlecode.com/files/aaim.pdf)里了。
 
 当我们踌躇于MPI的扩展性不理想而MapReduce的效率不理想时，Google MapReduce团队的几个人分出去，开发了一个新的并行框架Pregel。当时Pregel项目的tech lead访问中国。这个叫Grzegorz Malewicz的波兰人说服了我尝试在Pregel框架下验证LDA。但是在说这个故事之前，我们先看看Google Rephil——另一个基于MapReduce实现的并行隐含语义分析系统。
 
-### Rephil和MapReduce
+### Rephil和MapReduce：从长尾数据归纳长尾Patterns
 
 Google Rephil是Google AdSense背后广告相关性计算的头号秘密武器。但是这个系统没有发表过论文。只是其作者（博士Uri Lerner和工程师Mike Yar）在2002年在湾区举办的几次小规模交流中简要介绍过。所以Kevin Murphy把这些内容写进了他的书《Machine Learning: a Probabilitic Perspecitve》里。在吴军博士的《数学之美》里也提到了Rephil。
 
@@ -92,7 +94,10 @@ Rephil的模型是一个全新的模型，更像一个神经元网络。这个�
 
 这个功能按说pLSA和LDA也都能实现。为什么需要一个全新的模型呢？
 
-【唉呀妈呀，本来没想写这么长。码字太累了。今天先到这儿吧。要是大家感兴趣。再补全内容。把下面几个故事的标题先补全了。】
+从2007年至今，国内外很多团队都尝试过并行化pLSA和LDA。心灵手巧的工程师们，成功的开发出能学习数万甚至上十万语义（latent topics）的系统。但是不管大家用什么训练数据，都会发现，得到的大部分语义（相关的词的聚类）都是非常类似，或者说“重复”的。如果做一个“去重”处理，几万甚至十万的语义，就只剩下几百几千了。
+
+这是怎么回事？是我们的数据不够完美吗？
+
 
 ### LDA和Pregel
 
@@ -106,4 +111,3 @@ Rephil的模型是一个全新的模型，更像一个神经元网络。这个�
 
 ### Deep Learning和DistBelief
 ### Peacock
-

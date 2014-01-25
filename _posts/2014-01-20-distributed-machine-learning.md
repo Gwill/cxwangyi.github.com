@@ -32,9 +32,9 @@ tags: []
 
 ### 概念
 
-在开始说故事之前，先正名几个概念：MPI、MapReduce都是**框架（framework）**。MPICH2和Apache Hadoop分别是这两个框架的**实现（implementations）**。后面还会提到BSP框架，它的一个著名实现是Google Pregel。
+在开始说故事之前，先正名几个概念：Message Passing和MapReduce是两个有名的并行程序编程**范式**（paradigm），也就是说，并行程序应该怎么写都有规范了——只需要在预先提供的**框架（framework）**程序里插入一些代码，就能得到自己的并行程序。Message Passing范式的一个框架叫做MPI。MapReduce范式的框架也叫MapReduce。而MPICH2和Apache Hadoop分别是这MPI和MapReduce两个框架的**实现（implementations）**。另一个本文会涉及的MapReduce实现是我用C++写的[MapReduce Lite](https://code.google.com/p/mapreduce-lite/)。后面还会提到[BSP范式](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.799&rep=rep1&type=pdf)，它的一个著名的实现是[Google Pregel](http://kowshik.github.io/JPregel/pregel_paper.pdf‎)。
 
-MPI这个框架很灵活，对程序结构几乎没有太多约束，以至于大家有时把MPI称为一组**接口（API）**。
+MPI这个框架很灵活，对程序结构几乎没有太多约束，以至于大家有时把MPI称为一组**接口（interface）**——MPI的I就是interface的意思。
 
 这里，MPICH2和Hadoop都是很大的系统——除了实现框架（允许程序员方便的编程），还实现了资源管理和分配，以及资源调度的功能。这些功能在Google的系统里是分布式操作系统负责的，而Google MapReduce和Pregel都是在分布式操作系统基础上开发的，框架本身的代码量少很多，并且逻辑清晰易于维护。当然Hadoop已经意识到这个问题，现在有了YARN操作系统。（YARN是一个仿照UC Berkeley AMPLab的Mesos做的系统。关于这个“模仿”，又有另一个故事。）
 

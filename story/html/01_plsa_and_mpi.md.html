@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>分布式机器学习的故事</title>
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h2>pLSA和MPI：大数据的首要目标是“大”而不是“快”</h2>
+
+<p>我2007年毕业后加入Google做研究。我们有一个同事叫张栋，他的工作涉及pLSA模型的并行化。这个课题很有价值，因为generalized matrix decomposition实际上是collaborative filtering的generalization，是用户行为分析和文本语义理解的共同基础。几年后的今天，我们都知道这是搜索、推荐和广告这三大互联网平台产品的基础。</p>
+
+<p>当时的思路是用MPI来做并行化。张栋和宿华合作，开发一套基于MPI的并行pLSA系统。MPI是1980年代流行的并行框架，进入到很多大学的课程里，熟悉它的人很多。MPI这个框架提供了很多基本操作：除了点对点的Send, Recv，还有广播Bdcast，甚至还有计算加通信操作，比如AllReduce。</p>
+
+<p>MPI很灵活，描述能力很强。因为MPI对代码结构几乎没有什么限制——任何进程之间可以在任何时候通信——所以很多人不称之为框架，而是称之为“接口”。</p>
+
+<p>但是Google的并行计算环境上没有MPI。当时一位叫白宏杰的工程师将MPICH2移植到了Google的分布式操作系统上。具体的说，是重新实现MPI里的Send, Recv等函数，调用分布式操作系统里基于HTTP RPC的通信API。</p>
+
+<p>MPI的AllReduce操作在很多机器学习系统的开发里都很有用。因为很多并行机器学习系统都是各个进程分别训练模型，然后再合适的时候（比如一个迭代结束的时候）大家对一下各自的结论，达成共识，然后继续迭代。这个“对一下结论，达成共识”的过程，往往可以通过AllReduce来完成。</p>
+
+<p>如果我们关注一下MPI的研究，可以发现曾经有很多论文都在讨论如何高效实现AllReduce操作。比如我2008年的<a href="http://cxwangyi.wordpress.com/2008/12/04/the-highly-efficient-allreduce-in-mpich2/">博文</a>里提到一种当时让我们都觉得很聪明的一种算法。这些长年累月的优化，让MPICH2这样的系统的执行效率（runtime efficiency）非常出色。</p>
+
+<p>基于MPI框架开发的pLSA模型虽然效率高，并且可以处理相当大的数据，但是还是不能处理Google当年级别的数据。原因如上节『概念』中所述——MPICH2没有自动错误恢复功能，而且MPI这个框架定义中提供的编程灵活性，让我们很难改进框架，使其具备错误恢复的能力。</p>
+
+<p>具体的说，MPI允许进程之间在任何时刻互相通信。如果一个进程挂了，我们确实可以请分布式操作系统重启之。但是如果要让这个“新生”获取它“前世”的状态，我们就需要让它从初始状态开始执行，接收到其前世曾经收到的所有消息。这就要求所有给“前世”发过消息的进程都被重启。而这些进程都需要接收到他们的“前世”接收到过的所有消息。这种数据依赖的结果就是：所有进程都得重启，那么这个job就得重头做。</p>
+
+<p>一个job哪怕只需要10分钟时间，但是这期间一个进程都不挂的概率很小。只要一个进程挂了，就得重启所有进程，那么这个job就永远也结束不了了。</p>
+
+<p>虽然我们很难让MPI框架做到fault recovery，我们可否让基于MPI的pLSA系统支持fault recovery呢？原则上是可以的——最简易的做法是checkpointing——时不常的把有所进程接收到过的所有消息写入一个分布式文件系统（比如GFS）。或者更直接一点：进程状态和job状态写入GFS。Checkpointing是下文要说到的Pregel框架实现fault recovery的基础。</p>
+
+<p>但是如果一个系统自己实现fault recovery，那还需要MPI做什么呢？做通信？——现代后台系统都用基于HTTP的RPC机制通信了，比如和Google的Stubby、Facebook的Thrift、腾讯的Poppy还有Go语言自带的rpc package。做进程管理？——在开源界没有分布式操作系统的那些年里有价值；可是今天（2013年），Google的Borg、AMPLab的Mesos和Yahoo!的YARN都比MPICH2做得更好，考虑更全面，效能更高。</p>

@@ -1,0 +1,24 @@
+## 分布式机器学习的评价标准
+
+在后文中会详细介绍的各个大规模机器学习系统，基本都有三个特点：
+
+1. **可扩展**。可扩展的意思是“投入更多的机器，能处理更大的数据”。而传统的并行计算要的是：“投入更多机器，数据大小不变，计算速度更快”。这是我认识中“大数据”和传统并行计算研究目标不同的地方。如果只是求速度快，那么multicore和GPU会比分布式机器学习的ROI更高。
+
+   * 有一个框架（比如MPI或者MapReduce或者自己设计的），支持fault recovery。Fault recovery是可扩展的基础。现代机群系统都是很多用户公用的，其中任何一个进程都有可能被更高优先级的进程preempted。一个job涉及数千个进程（task processes），十分钟里一个进程都不挂的概率很小。而如果一个进程挂了，其他进程都得重启，那么整个计算任务可能永远都不能完成。
+
+1. **数学模型要根据架构和数据做修改**。这里有两个原因：
+
+    * 因为大数据基本都是长尾分布的，而papers里的模型基本都假设数据是指数分布的（想想用SVD做component analysis其实假设了Gaussian distributed，latent Dirichlet allocation假设了multimonial distribution。）。真正能处理大数据的数学模型，都需要能更好的描述长尾数据。否则，模型训练就是忽视长尾，而只关注从“大头”数据部分挖掘“主流”patterns了。
+
+    * 很多机器学习算法（比如MCMC）都不适合并行化。所以往往需要根据模型的特点做一些算法的调整。有时候会是approximation。比如AD-LDA算法是一种并行Gibbs sampling算法，但是只针对LDA模型有效，对其他大部分模型都不收敛，甚至对LDA的很多改进模型也不收敛。
+
+1. **引入更多机器的首要目的不是提升性能，而是能处理更大的数据**。用更多的机器，处理同样大小的数据，期待speedup提高——这是传统并行计算要解决的问题——是multicore、SMP、MPP、GPU还是Beowolf cluster上得分布式计算不重要。在大数据情况下，困难点在问题规模大，数据量大。此时，引入更多机器，是期待能处理更大数据，总时间消耗可以不变甚至慢一点。分布式计算把数据和计算都分不到多台机器上，在存储、I/O、通信和计算上都要消除瓶颈。
+
+上述三个特点，会在实践中要求“一个有价值的算法值得也应该有自己独特的框架”。
+
+
+在开始说故事之前，再先正名几个概念：Message Passing和MapReduce是两个有名的并行程序编程**范式**（paradigm），也就是说，并行程序应该怎么写都有规范了——只需要在预先提供的**框架（framework）**程序里插入一些代码，就能得到自己的并行程序。Message Passing范式的一个框架叫做MPI。MapReduce范式的框架也叫MapReduce。而MPICH2和Apache Hadoop分别是这MPI和MapReduce两个框架的**实现（implementations）**。另一个本文会涉及的MapReduce实现是我用C++写的[MapReduce Lite](https://code.google.com/p/mapreduce-lite/)。后面还会提到[BSP范式](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.53.799&rep=rep1&type=pdf)，它的一个著名的实现是[Google Pregel](http://kowshik.github.io/JPregel/pregel_paper.pdf‎)。
+
+MPI这个框架很灵活，对程序结构几乎没有太多约束，以至于大家有时把MPI称为一组**接口（interface）**——MPI的I就是interface的意思。
+
+这里，MPICH2和Hadoop都是很大的系统——除了实现框架（允许程序员方便的编程），还实现了资源管理和分配，以及资源调度的功能。这些功能在Google的系统里是分布式操作系统负责的，而Google MapReduce和Pregel都是在分布式操作系统基础上开发的，框架本身的代码量少很多，并且逻辑清晰易于维护。当然Hadoop已经意识到这个问题，现在有了YARN操作系统。（YARN是一个仿照UC Berkeley AMPLab的Mesos做的系统。关于这个“模仿”，又有另一个故事。）

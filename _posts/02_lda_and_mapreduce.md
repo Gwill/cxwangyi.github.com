@@ -1,0 +1,22 @@
+## LDA和MapReduce：“可扩展”的基础——数据并行。
+
+因为MPI在可扩展性上的限制，	我们可以大致理解为什么Google的并行计算架构上没有实现经典的MPI。同时，我们自然的考虑Google里当时最有名的并行计算框架MapReduce。
+
+MapReduce的风格和MPI截然相反。MapReduce对程序的结构有严格的约束——计算过程必须能在两个函数中描述：map和reduce；输入和输出数据都必须是一个一个的records；任务之间不能通信，整个计算过程中唯一的通信机会是map phase和reduce phase之间的shuffuling phase，这是在框架控制下的，而不是应用代码控制的。
+
+pLSA模型的作者Thomas Hoffmann提出的机器学习算法是EM。EM是各种机器学习inference算法中少数适合用MapReduce框架描述的——map phase用来推测（inference）隐含变量的分布（distributions of hidden variables），也就是实现E-step；reduce phase利用上述结果来更新模型，也即是M-step。
+
+但是2008年的时候，pLSA已经被新兴的LDA掩盖了。LDA是pLSA的generalization：一方面LDA的hyperparameter设为特定值的时候，就specialize成pLSA了。从工程应用价值的角度看，这个数学方法的generalization，允许我们用一个训练好的模型解释任何一段文本中的语义。而pLSA只能理解训练文本中的语义。（虽然也有ad hoc的方法让pLSA理解新文本的语义，但是大都效率低，并且并不符合pLSA的数学定义。）这就让继续研究pLSA价值不明显了。
+
+另一方面，LDA不能用EM学习了，而需要用更generalized inference算法。学界验证效果最佳的是Gibbs sampling。作为一种Markov Chain Monte Carlo（MCMC）算法，顾名思义，Gibbs sampling是一个顺序过程，按照定义不能被并行化。
+
+但是2007年的时候，UC Irvine的David Newman团队发现，对于LDA这个特定的模型，Gibbs sampling可以被并行化。具体的说，把训练数据拆分成多份，用每一份独立的训练模型。每隔几个Gibbs sampling迭代，这几个局部模型之间做一次同步，得到一个全局模型，并且用这个全局模型替换各个局部模型。这个研究发表在NIPS上，题目是：Distributed Inference for Latent Dirichlet Allocation。
+
+上述做法，在2012年Jeff Dean关于distributed deep leearning的[论文](http://research.google.com/archive/large_deep_networks_nips2012.html)中，被称为**data parallelism**（数据并行）。如果一个算法可以做数据并行，很可能就是可扩展（scalable）的了。
+
+David Newman团队的发现允许我们用多个map tasks并行的做Gibbs sampling，然后在reduce phase中作模型的同步。这样，一个训练过程可以表述成一串MapReduce jobs。我用了一周时间在Google MapReduce框架上实现实现和验证了这个方法。后来在同事Matthew Stanton的帮助下，优化代码，提升效率。但是，因为每次启动一个MapReduce job，系统都需要重新安排进程（re-schedule）；并且每个job都需要访问GFS，效率不高。在当年的Google MapReduce系统中，1/3的时间花在这些杂碎问题上了。后来实习生司宪策在Hadoop上也实现了这个方法。我印象里Hadoop环境下，杂碎事务消耗的时间比例更大。
+
+随后白红杰在我们的代码基础上修改了数据结构，使其更适合MPI的AllReduce操作。这样就得到了一个高效率的LDA实现。我们把用MapReduce和MPI实现的LDA的Gibbs sampling算法发表在[这篇论文](http://plda.googlecode.com/files/aaim.pdf)里了。
+
+当我们踌躇于MPI的扩展性不理想而MapReduce的效率不理想时，Google MapReduce团队的几个人分出去，开发了一个新的并行框架Pregel。当时Pregel项目的tech lead访问中国。这个叫Grzegorz Malewicz的波兰人说服了我尝试在Pregel框架下验证LDA。但是在说这个故事之前，我们先看看Google Rephil——另一个基于MapReduce实现的并行隐含语义分析系统。
+

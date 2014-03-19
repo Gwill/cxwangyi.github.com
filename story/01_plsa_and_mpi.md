@@ -1,4 +1,5 @@
-## pLSA和MPI：大数据的首要目标是“大”而不是“快”
+## pLSA和MPI：
+### 大数据的首要目标是“大”而不是“快”
 
 我2007年毕业后加入Google做研究。我们有一个同事叫张栋，他的工作涉及pLSA模型的并行化。这个课题很有价值，因为generalized matrix decomposition实际上是collaborative filtering的generalization，是用户行为分析和文本语义理解的共同基础。几年后的今天，我们都知道这是搜索、推荐和广告这三大互联网平台产品的基础。
 
@@ -21,4 +22,3 @@ MPI的AllReduce操作在很多机器学习系统的开发里都很有用。因�
 虽然我们很难让MPI框架做到fault recovery，我们可否让基于MPI的pLSA系统支持fault recovery呢？原则上是可以的——最简易的做法是checkpointing——时不常的把有所进程接收到过的所有消息写入一个分布式文件系统（比如GFS）。或者更直接一点：进程状态和job状态写入GFS。Checkpointing是下文要说到的Pregel框架实现fault recovery的基础。
 
 但是如果一个系统自己实现fault recovery，那还需要MPI做什么呢？做通信？——现代后台系统都用基于HTTP的RPC机制通信了，比如和Google的Stubby、Facebook的Thrift、腾讯的Poppy还有Go语言自带的rpc package。做进程管理？——在开源界没有分布式操作系统的那些年里有价值；可是今天（2013年），Google的Borg、AMPLab的Mesos和Yahoo!的YARN都比MPICH2做得更好，考虑更全面，效能更高。
-

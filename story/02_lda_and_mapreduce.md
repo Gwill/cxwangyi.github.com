@@ -1,4 +1,5 @@
-## LDA和MapReduce：“可扩展”的基础——数据并行。
+## LDA和MapReduce：
+### “可扩展”的基础——数据并行。
 
 因为MPI在可扩展性上的限制，	我们可以大致理解为什么Google的并行计算架构上没有实现经典的MPI。同时，我们自然的考虑Google里当时最有名的并行计算框架MapReduce。
 
@@ -19,4 +20,3 @@ David Newman团队的发现允许我们用多个map tasks并行的做Gibbs sampl
 随后白红杰在我们的代码基础上修改了数据结构，使其更适合MPI的AllReduce操作。这样就得到了一个高效率的LDA实现。我们把用MapReduce和MPI实现的LDA的Gibbs sampling算法发表在[这篇论文](http://plda.googlecode.com/files/aaim.pdf)里了。
 
 当我们踌躇于MPI的扩展性不理想而MapReduce的效率不理想时，Google MapReduce团队的几个人分出去，开发了一个新的并行框架Pregel。当时Pregel项目的tech lead访问中国。这个叫Grzegorz Malewicz的波兰人说服了我尝试在Pregel框架下验证LDA。但是在说这个故事之前，我们先看看Google Rephil——另一个基于MapReduce实现的并行隐含语义分析系统。
-

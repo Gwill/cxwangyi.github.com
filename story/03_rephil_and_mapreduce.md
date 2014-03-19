@@ -1,4 +1,5 @@
-## Rephil和MapReduce：描述长尾数据的数学模型
+## Rephil和MapReduce：
+### 描述长尾数据的数学模型
 
 Google Rephil是Google AdSense背后广告相关性计算的头号秘密武器。但是这个系统没有发表过论文。只是其作者（博士Uri Lerner和工程师Mike Yar）在2002年在湾区举办的几次小规模交流中简要介绍过。所以Kevin Murphy把这些内容写进了他的书《Machine Learning: a Probabilitic Perspecitve》里。在吴军博士的《数学之美》里也提到了Rephil。
 

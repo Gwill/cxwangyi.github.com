@@ -15,14 +15,14 @@ tags: []
 
 * 前言
 
-   1. [大数据带来的新机遇](00_0_new_era.md)
-   1. [分布式机器学习的评价标准](00_1_principles.md)
+   1. [大数据带来的新机遇](http://cxwangyi.github.io/story/html/00_0_new_era.md.html)
+   1. [分布式机器学习的评价标准](http://cxwangyi.github.io/story/html/00_1_principles.md.html)
 
 * 故事
 
-   1. [pLSA和MPI](01_plsa_and_mpi.md)
-   1. [LDA和MapReduce](02_lda_and_mapreduce.md)
-   1. [Rephil和MapReduce](03_rephil_and_mapreduce.md)
+   1. [pLSA和MPI](http://cxwangyi.github.io/story/html/01_plsa_and_mpi.md.html)
+   1. [LDA和MapReduce](http://cxwangyi.github.io/story/html/02_lda_and_mapreduce.md.html)
+   1. [Rephil和MapReduce](http://cxwangyi.github.io/story/html/03_rephil_and_mapreduce.md.html)
 
    1. LDA和Pregel
    1. Clustering和Pregel

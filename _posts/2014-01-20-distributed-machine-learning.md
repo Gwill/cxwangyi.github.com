@@ -14,16 +14,12 @@ tags: []
 因为我想说的内容有点儿多（毕竟总结了七年的经历），所以我分开成若干个章节，一章一个故事。
 
 * 前言
-
    1. [大数据带来的新机遇](http://cxwangyi.github.io/story/html/00_0_new_era.md.html)
    1. [分布式机器学习的评价标准](http://cxwangyi.github.io/story/html/00_1_principles.md.html)
-
 * 故事
-
    1. [pLSA和MPI](http://cxwangyi.github.io/story/html/01_plsa_and_mpi.md.html)
    1. [LDA和MapReduce](http://cxwangyi.github.io/story/html/02_lda_and_mapreduce.md.html)
    1. [Rephil和MapReduce](http://cxwangyi.github.io/story/html/03_rephil_and_mapreduce.md.html)
-
    1. LDA和Pregel
    1. Clustering和Pregel
    1. 分类器和GBR

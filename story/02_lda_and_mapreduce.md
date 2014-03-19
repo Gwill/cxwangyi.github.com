@@ -5,13 +5,13 @@
 
 MapReduce的风格和MPI截然相反。MapReduce对程序的结构有严格的约束——计算过程必须能在两个函数中描述：map和reduce；输入和输出数据都必须是一个一个的records；任务之间不能通信，整个计算过程中唯一的通信机会是map phase和reduce phase之间的shuffuling phase，这是在框架控制下的，而不是应用代码控制的。
 
-pLSA模型的作者Thomas Hoffmann提出的机器学习算法是EM。EM是各种机器学习inference算法中少数适合用MapReduce框架描述的——map phase用来推测（inference）隐含变量的分布（distributions of hidden variables），也就是实现E-step；reduce phase利用上述结果来更新模型，也即是M-step。
+pLSA模型的作者Thomas Hoffmann提出的机器学习算法是EM。EM是各种机器学习inference算法中少数适合用MapReduce框架描述的——map phase用来推测（inference）隐含变量的分布（distributions of hidden variables），也就是实现E-step；reduce phase利用上述结果来更新模型参数，也即是M-step。
 
 但是2008年的时候，pLSA已经被新兴的LDA掩盖了。LDA是pLSA的generalization：一方面LDA的hyperparameter设为特定值的时候，就specialize成pLSA了。从工程应用价值的角度看，这个数学方法的generalization，允许我们用一个训练好的模型解释任何一段文本中的语义。而pLSA只能理解训练文本中的语义。（虽然也有ad hoc的方法让pLSA理解新文本的语义，但是大都效率低，并且并不符合pLSA的数学定义。）这就让继续研究pLSA价值不明显了。
 
-另一方面，LDA不能用EM学习了，而需要用更generalized inference算法。学界验证效果最佳的是Gibbs sampling。作为一种Markov Chain Monte Carlo（MCMC）算法，顾名思义，Gibbs sampling是一个顺序过程，按照定义不能被并行化。
+另一方面，LDA的inference很麻烦，没法做精确inference，只有近似算法，比如variational inference。如果EM算法中的E-step采用variational infernece，那么EM算法就被称为variational EM。EM本来就是一个比较容易陷入局部最优的算法，E-step用了variational inference，总体效果就更差了。另一种近似inference算法是Gibbs sampling。虽然我们可以在E-step里用Gibbs sampling替换variational inference，但是Thomas Griffiths发现一个有趣的特点——稍微修改LDA之后，就可以利用Dirichlet和multinomial分布的共轭性，把模型参数都积分积掉。没有参数了，也就所谓M-step里的“更新参数”了。这样，只需要做Gibbs sampling即可。这个路子发表在PNAS上，题目是Finding Scientific Topics。
 
-但是2007年的时候，UC Irvine的David Newman团队发现，对于LDA这个特定的模型，Gibbs sampling可以被并行化。具体的说，把训练数据拆分成多份，用每一份独立的训练模型。每隔几个Gibbs sampling迭代，这几个局部模型之间做一次同步，得到一个全局模型，并且用这个全局模型替换各个局部模型。这个研究发表在NIPS上，题目是：Distributed Inference for Latent Dirichlet Allocation。
+Gibbs sampling也有一个问题：作为一种Markov Chain Monte Carlo（MCMC）算法，顾名思义，Gibbs sampling是一个顺序过程，按照定义不能被并行化。幸运的是，2007年的时候，UC Irvine的David Newman团队发现，对于LDA这个特定的模型，Gibbs sampling可以被并行化。具体的说，把训练数据拆分成多份，用每一份独立的训练模型。每隔几个Gibbs sampling迭代，这几个局部模型之间做一次同步，得到一个全局模型，并且用这个全局模型替换各个局部模型。这个研究发表在NIPS上，题目是：Distributed Inference for Latent Dirichlet Allocation。
 
 上述做法，在2012年Jeff Dean关于distributed deep leearning的[论文](http://research.google.com/archive/large_deep_networks_nips2012.html)中，被称为**data parallelism**（数据并行）。如果一个算法可以做数据并行，很可能就是可扩展（scalable）的了。
 

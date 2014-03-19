@@ -23,7 +23,6 @@ tags: []
    1. [pLSA和MPI](http://cxwangyi.github.io/story/html/01_plsa_and_mpi.md.html)
    1. [LDA和MapReduce](http://cxwangyi.github.io/story/html/02_lda_and_mapreduce.md.html)
    1. [Rephil和MapReduce](http://cxwangyi.github.io/story/html/03_rephil_and_mapreduce.md.html)
-
    1. LDA和Pregel
    1. Clustering和Pregel
    1. 分类器和GBR

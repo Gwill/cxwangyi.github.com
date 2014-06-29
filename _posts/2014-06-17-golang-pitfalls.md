@@ -29,3 +29,24 @@ restart the process, you cannot reuse the existing `os/exec.Cmd`
 variable and call `Run()` again.  If you do so, `Run()` returns an
 error like "already started".  Instead, you need to create a new
 `os/exec.Cmd` object and call its `Run()`.
+
+## Keep methods of an RPC type clear
+
+When you create an RPC server, you might want to monitor the RPC
+variable using `expvar`.  A straightforward solution is to define a
+`String()` method for the RPC type:
+
+    type RPCSerive struct {
+      state State
+    }
+    func (s *RPCService) String() string { return fmt.Sprintf(...) }
+
+    s := new(RPCService)
+    rpc.Register(s)
+    expvar.Publish("service", s)
+
+However, `rpc.Register` would warn, saying that `String` does not
+match the signature requirements of RPC methods.
+
+The solution is not to define `RPCService.String`; instead, define
+`State.String()` and publish `s.state` instead of `s`.

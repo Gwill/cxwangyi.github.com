@@ -5,7 +5,7 @@ cat <<EOF
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
    <title>分布式机器学习的故事</title>
    <meta name="author" content="Yi Wang" />
-   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown-alt.css" rel="stylesheet"></link>
 </head>
 <body>
 EOF

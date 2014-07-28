@@ -1,1 +1,1 @@
-for i in *.md; do ./pub-story.sh $i > html/$i.html; done
+for i in *.md; do ./pub-story.sh $i > $i.html; done

@@ -1,5 +1,4 @@
-##Docker：
-###分布式系统的软件工程革命（上）
+##Docker：分布式系统的软件工程革命（上）
 
 **作者：王益**
 
@@ -194,9 +193,7 @@ YARN的功能和Google Borg有类似之处，但是真正引发外界对Google B
 上文中，我们已经用一个Dockerfile把两个程序：`indexer`和`searchengine`都装进一个镜像`wangkuiyi/hellworld`了。接下来，我们尝试在Mac主机上启动两个集装箱，分别执行一个`indexer`和一个`searchengine`进程：
 
     docker run -d -p 8080:8080 --name searchengine wangkuiyi/helloworld /searchengine
-
     VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port8080,tcp,,8080,,8080"
-
     docker run -d --name indexer --link searchengine:se wangkuiyi/helloworld /indexer -searchengine=se:8080
 
 这里，第一行启动了一个集装箱，并且起名叫`searchengine`，执行的镜像是`wangkuiyi/helloworld`。`-d`的意思是在后台执行，类似一个shell命令后面跟上一个`&`符号的效果。`-p 8080:8080`的意思是：“这个集装箱里有个程序会监听8080端口（如果看看`searchengine`的源码，会发现8080是其默认端口），把这个端口映射到主机（boot2docker创建的Linux虚拟机）的8080端口”。

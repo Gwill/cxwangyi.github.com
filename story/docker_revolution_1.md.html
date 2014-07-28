@@ -2,14 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-   <title>分布式机器学习的故事</title>
    <meta name="author" content="Yi Wang" />
-   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown-alt.css" rel="stylesheet"></link>
+   <link href="https://dl.dropboxusercontent.com/u/2111778/Better-Web-Readability-Project-CSS-Library/CSS/typography.css" rel="stylesheet"></link>
 </head>
 <body>
-<h2>Docker：</h2>
-
-<h3>分布式系统的软件工程革命（上）</h3>
+<h2>Docker：分布式系统的软件工程革命（上）</h2>
 
 <p><strong>作者：王益</strong></p>
 
@@ -219,9 +216,7 @@ wangkuiyi/helloworld   latest              255460c3d095        3 hours ago      
 <p>上文中，我们已经用一个Dockerfile把两个程序：<code>indexer</code>和<code>searchengine</code>都装进一个镜像<code>wangkuiyi/hellworld</code>了。接下来，我们尝试在Mac主机上启动两个集装箱，分别执行一个<code>indexer</code>和一个<code>searchengine</code>进程：</p>
 
 <pre><code>docker run -d -p 8080:8080 --name searchengine wangkuiyi/helloworld /searchengine
-
 VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port8080,tcp,,8080,,8080"
-
 docker run -d --name indexer --link searchengine:se wangkuiyi/helloworld /indexer -searchengine=se:8080
 </code></pre>
 

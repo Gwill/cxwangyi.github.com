@@ -10,7 +10,7 @@ Docker最近很火。Docker实现了“集装箱”——一种介于“软件�
 
 为了使用Docker，需要了解不少工具及其设计思路；而这些工具的文档分布在不同的网站。为了方便大家学习，本文以开发一个极简的搜索引擎为例，展示Docker带来的革新。
 
-说是革新，其实是Google已经用了很多年的方式，只是最近才因为Docker开源项目而广为人知。最近这将近十年的时间里，各互联网公司和高校都在奋力模仿Google的计算技术。了解这一模仿的过程，可以帮助我们深入理解分布式系统（包括现在常说的“大数据系统”）中若干重要问题。为此，本文以技术教程为主线，穿插了一些关于Hadoop和Mesos等“模仿”项目的介绍，简要追溯它们勇敢而艰难的“邯郸学步”的历程。最后，本文会介绍Google最近公布的“正确答案”——Hubernetes——Google核心技术Borg的开源版本。
+说是革新，其实是Google已经用了十年的方式，只是最近才因为Docker开源项目而广为人知。Eric Brewer（Google VP of Infrastructure）在Dockercon14活动上的[演讲](https://www.youtube.com/watch?v=YrxnVKZeqK8)回顾了这段历程。目前，Google每周会执行20亿个集装箱。可以说，最近十年是各互联网公司和高校都在奋力模仿Google的计算技术的十年。了解这一模仿的过程，可以帮助我们深入理解分布式系统（包括现在常说的“大数据系统”）中若干重要问题。为此，本文以技术教程为主线，穿插了一些关于Hadoop和Mesos等“模仿”项目的介绍，简要追溯它们勇敢而艰难的“邯郸学步”的历程。最后，本文会介绍Google最近公布的“正确答案”——Hubernetes——Google核心技术Borg的开源版本。
 
 ###Docker
 
@@ -34,7 +34,7 @@ Docker作为一个软件系统，可以用来创建“集装箱镜像”（conta
 
 上节提到，Docker虚拟了网络地址空间和文件系统。实际上，它还虚拟了进程ID空间（pid space）等系统数据结构。这些功能是一个叫dockerd的daemon程序借助Linux内核中的*control groups*（又叫cgroups）功能实现的。
 
-dockerd负责执行集装箱；就像VirtualBox负责执行虚拟机一样。而cgroup是Google的两个工程师Paul Menage和Rohit Seth贡献给Linux社区的。从他们的[工作记录](http://linux-kernel.2935.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&user=1718)看，主要工作集中在2008和2009年。据说，Google开发它就是为了方便在自己的机群上部署各种Internet应用和离线处理系统。具体一点儿的故事，请看这篇Information Week上的[帖子](http://www.informationweek.com/cloud/infrastructure-as-a-service/google-leads-coalition-for-container-management/d/d-id/1297174?page_number=2)。。
+dockerd负责执行集装箱；就像VirtualBox负责执行虚拟机一样。而cgroup是Google的两个工程师Paul Menage和Rohit Seth贡献给Linux社区的。cgroups的使用始于2006年。但是从他们的[工作记录](http://linux-kernel.2935.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&user=1718)看，主要工作持续到2008和2009年。据说，Google开发它就是为了方便在自己的机群上部署各种Internet应用和离线处理系统。具体一点儿的故事，请看这篇Information Week上的[帖子](http://www.informationweek.com/cloud/infrastructure-as-a-service/google-leads-coalition-for-container-management/d/d-id/1297174?page_number=2)。。
 
 因为cgroups功能只有Linux内核有，所以Docker目前只能运行在Linux上。可是，现在很多开发者都在用Mac。为了能让这些开发者方便的测试自己创作的集装箱镜像，Docker的开发者写了boot2docker——利用VirtualBox虚拟一个Linux主机，并且在上面安装dockerd。而命令行控制程序docker执行在Mac主机上，被配置成和虚拟Linux主机上的dockerd协作。
 

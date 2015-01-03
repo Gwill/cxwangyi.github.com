@@ -1,11 +1,4 @@
----
-layout: post
-title: "Learning Go: Implicit Addressing and Deference in Method Calls"
-description: ""
-category:
-tags: [Go]
----
-{% include JB/setup %}
+# Learning Go: Implicit Addressing and Deference in Method 
 
 An interesting [sample Go program](https://groups.google.com/forum/?fromgroups=#!searchin/golang-nuts/reciever/golang-nuts/IA7JkkyZuO4/DdfJOxXMwQAJ) was discussed in Google group:
 
@@ -37,8 +30,7 @@ deference in method calls:
     an interface.
 
   * [Rule 2](http://golang.org/ref/spec#Calls) (implicit addressing):
-    If x is addressable and &amp;x's method set contains m, x.m() is
-    shorthand for (&amp;x).m().
+    If x is addressable and `&x`'s method set contains m, x.m() is shorthand for `(&x).m()`.
 
   * Rule 3 (implicit dereference): `x.m()` might be a shorthand for
     `(*x).m()`, because Go has only "." but not "->".

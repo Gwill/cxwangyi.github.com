@@ -1,11 +1,4 @@
----
-layout: post
-title: "Documentation"
-description: "Instructions on how to install and customize the HMFAYSAL Notepad Theme."
-category: theme
-tags: [how-to]
-imagefeature: cover10.jpg
----
+# Instructions on how to install and customize the HMFAYSAL Notepad Theme."
 
 General notes and suggestions for customizing **HMFAYSAL Notepad Theme**.
 
@@ -30,7 +23,7 @@ General notes and suggestions for customizing **HMFAYSAL Notepad Theme**.
 <br>
 <br>
 
-<div class="span7 text-center" markdown="0"><a href="https://github.com/hmfaysal/hmfaysal-omega-theme/archive/master.zip" class="btn btn-success btn-large"><i class="icon-download-alt"></i> Download the Theme</a></div>  
+<div class="span7 text-center" markdown="0"><a href="https://github.com/hmfaysal/hmfaysal-omega-theme/archive/master.zip" class="btn btn-success btn-large"><i class="icon-download-alt"></i> Download the Theme</a></div>
 <br>
 
 **Pro-tip:** Delete the `gh-pages` branch after cloning and start fresh by branching off `master`. There is a bunch of garbage in `gh-pages` used for the theme's demo site that I'm guessing you don't want on your site.
@@ -123,7 +116,7 @@ kramdown:
   use_coderay: false
 
   coderay:
-    coderay_line_numbers: 
+    coderay_line_numbers:
     coderay_line_numbers_start: 1
     coderay_tab_width: 4
     coderay_bold_every: 10
@@ -133,7 +126,7 @@ kramdown:
 ---
 
 ## Post Front Matter YAML
- 
+
 
 A new blog post should have the following structure to utilise the themes functions
 
@@ -146,7 +139,7 @@ headline: Some headline				# Will appear in bold letters on top of the post
 modified: YYYY-MM-DD				# Date
 category: personal
 tags: []
-image: 
+image:
   feature: some-image.jpg
 comments: true
 mathjax:
@@ -258,13 +251,13 @@ For the most part you can leave these as is since the author/owner details are p
 
 ### Adding Posts and Pages
 
-There are two main content layouts: `post.html` (for posts) and `page.html` (for pages). Both have support for large **feature images** that span the full-width of the screen, and both are meant for text heavy blog posts (or articles). 
+There are two main content layouts: `post.html` (for posts) and `page.html` (for pages). Both have support for large **feature images** that span the full-width of the screen, and both are meant for text heavy blog posts (or articles).
 
 #### Feature Images
 
 A good rule of thumb is to keep feature images nice and wide. An image cropped around around 1024 x 768 pixels will keep file size down with an acceptable resolution for most devices. If you want to serve these images responsively I'd suggest looking at [Picturefill](https://github.com/scottjehl/picturefill) or [Adaptive Images](http://adaptive-images.com/).
 
-The two layouts make the assumption that the feature images live in the *images* folder. To add a feature image to a post or page just include the filename in the front matter like so. 
+The two layouts make the assumption that the feature images live in the *images* folder. To add a feature image to a post or page just include the filename in the front matter like so.
 
 {% highlight yaml %}
 image:

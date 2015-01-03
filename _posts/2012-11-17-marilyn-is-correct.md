@@ -1,11 +1,4 @@
----
-layout: post
-title: "醉汉的脚步:Marilyn没错"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# 醉汉的脚步:Marilyn没错
 
 我看到有人的博客里在讨论 The Drundard's Walk 里的一个问题：
 

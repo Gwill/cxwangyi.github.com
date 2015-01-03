@@ -1,11 +1,4 @@
----
-layout: post
-title: "Use Google Libs with Blade on Mac OS X"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Use Google Libs with Blade on Mac OS X
 
 In this
 [article](http://cxwangyi.github.com/2013/02/22/use-blade-with-mac-os-x/),

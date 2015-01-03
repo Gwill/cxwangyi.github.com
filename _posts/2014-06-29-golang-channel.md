@@ -1,11 +1,4 @@
----
-layout: post
-title: "Channels in Go"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Channels in Go
 
 ## Reference Type
 

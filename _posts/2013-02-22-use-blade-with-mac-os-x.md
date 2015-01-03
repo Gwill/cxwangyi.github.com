@@ -1,11 +1,4 @@
----
-layout: post
-title: "Use Blade with Mac OS X"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Use Blade with Mac OS X
 
 [typhoon-blade](http://code.google.com/p/typhoon-blade) is a
 convenient software build tool designed for Linux.  However, in order

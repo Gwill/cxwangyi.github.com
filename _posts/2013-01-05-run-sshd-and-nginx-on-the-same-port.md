@@ -1,11 +1,4 @@
----
-layout: post
-title: "Run SSHD and Nginx On the Same Port"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Run SSHD and Nginx On the Same Port
 
 I have a computer (`bridge`) in the lab, which is highly restricted by the firewall - it can access the Internet, but only those services listening on port 80.
 

@@ -1,11 +1,4 @@
----
-layout: post
-title: "Set Connect Timeout"
-description: ""
-category: networking
-tags: []
----
-{% include JB/setup %}
+# Set Connect Timeout
 
 When we talk about timeout, we might refer to connection timeout,
 sending timeout or receiving timeout.  This post is about setting the

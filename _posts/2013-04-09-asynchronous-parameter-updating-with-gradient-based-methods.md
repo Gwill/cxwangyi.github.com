@@ -1,11 +1,4 @@
----
-layout: post
-title: "Why Asynchronous SGD Works Great?"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Why Asynchronous SGD Works Great?
 
 In this NIPS 2012 paper,
 [Large Scale Distributed Deep Networks](http://books.nips.cc/papers/files/nips25/NIPS2012_0598.pdf),

@@ -1,12 +1,4 @@
----
-layout: post
-title: "Cluster Name Service"
-description: ""
-category: 
-tags: []
----
-{% include JB/setup %}
-
+# Cluster Name Service"
 
 一个复杂的互联网服务的后台，通常包括很多services程序；互相调用，构成一个有向无环图（directed acyclic graph）。通常被调用者被称为**上游**服务，调用者被称为**下游**服务。
 

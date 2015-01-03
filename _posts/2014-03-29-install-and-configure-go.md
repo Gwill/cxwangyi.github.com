@@ -1,11 +1,4 @@
----
-layout: post
-title: "Install and Configure Go"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Install and Configure Go
 
 This short note is about how to install Go compiler and configure Emacs to be an IDE for Go.
 

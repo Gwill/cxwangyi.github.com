@@ -1,11 +1,4 @@
----
-layout: post
-title: "分布式机器学习的故事"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# 分布式机器学习的故事
 
 ## 初衷 ##
 

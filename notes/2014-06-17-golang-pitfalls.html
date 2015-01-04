@@ -1,0 +1,55 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Pitfalls in Go"</h1>
+
+<h2><code>break</code> in <code>select</code> or <code>switch</code> and in <code>for</code></h2>
+
+<p>In the follow code snippet</p>
+
+<pre><code>for ... {
+  select {
+    case &lt;-ch:
+      break
+  }
+}
+</code></pre>
+
+<p>The <code>break</code> jumps out from <code>select</code> only, but not that far to get out
+of <code>for</code>.</p>
+
+<h2><code>os/exec.Cmd.Run()</code> cannot be called repeatedly to restart the process</h2>
+
+<p>If you want to monitor the execution of a process and restart it when
+it failed.  You can use <code>os/exec.Cmd.Run()</code>.  However, if you want to
+restart the process, you cannot reuse the existing <code>os/exec.Cmd</code>
+variable and call <code>Run()</code> again.  If you do so, <code>Run()</code> returns an
+error like &ldquo;already started&rdquo;.  Instead, you need to create a new
+<code>os/exec.Cmd</code> object and call its <code>Run()</code>.</p>
+
+<h2>Keep methods of an RPC type clear</h2>
+
+<p>When you create an RPC server, you might want to monitor the RPC
+variable using <code>expvar</code>.  A straightforward solution is to define a
+<code>String()</code> method for the RPC type:</p>
+
+<pre><code>type RPCSerive struct {
+  state State
+}
+func (s *RPCService) String() string { return fmt.Sprintf(...) }
+
+s := new(RPCService)
+rpc.Register(s)
+expvar.Publish("service", s)
+</code></pre>
+
+<p>However, <code>rpc.Register</code> would warn, saying that <code>String</code> does not
+match the signature requirements of RPC methods.</p>
+
+<p>The solution is not to define <code>RPCService.String</code>; instead, define
+<code>State.String()</code> and publish <code>s.state</code> instead of <code>s</code>.</p>
+</html>

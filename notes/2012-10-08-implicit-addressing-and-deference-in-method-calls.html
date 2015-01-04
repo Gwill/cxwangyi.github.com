@@ -1,0 +1,51 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Learning Go: Implicit Addressing and Deference in Method</h1>
+
+<p>An interesting <a href="https://groups.google.com/forum/?fromgroups=#!searchin/golang-nuts/reciever/golang-nuts/IA7JkkyZuO4/DdfJOxXMwQAJ">sample Go program</a> was discussed in Google group:</p>
+
+<pre><code>package main
+import &amp;quot;fmt&amp;quot;
+type Foo struct {
+    X float64
+}
+func (v *Foo) Neg() float64 {
+    return -v.X
+}
+func main() {
+    var v0 Foo = Foo{3}
+    var v1 *Foo = &amp;amp; v0
+    var v2 **Foo = &amp;amp; v1
+    var v3 ***Foo = &amp;amp; v2
+    fmt.Println(
+        v0.Neg(), //OK, due to Rule 2.
+        v1.Neg(), //OK, the normal case.
+        v2.Neg(), //OK, due to Rule 3.
+        v3.Neg()) //v3.Neg undefined (type ***Foo has no field or method Neg)
+}
+</code></pre>
+
+<p>From this program ,we can see three rules about addressing and
+deference in method calls:</p>
+
+<ul>
+<li><p><a href="http://golang.org/doc/effective_go.html#pointers_vs_values">Rule 1</a>:
+Methods can be defined for any named type that is not a pointer or
+an interface.</p></li>
+<li><p><a href="http://golang.org/ref/spec#Calls">Rule 2</a> (implicit addressing):
+If x is addressable and <code>&amp;x</code>&rsquo;s method set contains m, x.m() is shorthand for <code>(&amp;x).m()</code>.</p></li>
+<li><p>Rule 3 (implicit dereference): <code>x.m()</code> might be a shorthand for
+<code>(*x).m()</code>, because Go has only &ldquo;.&rdquo; but not &ldquo;->&rdquo;.</p></li>
+</ul>
+
+
+<p>There would be no way to call a method using a reciever type like
+<code>***Foo</code>, because we cannot attach a method to a pointer type as
+stated in Rule 1; so the furthest implicit dereference reaches
+reciever type <code>**Foo</code>.</p>
+</html>

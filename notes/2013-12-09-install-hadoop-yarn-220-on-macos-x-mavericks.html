@@ -1,0 +1,144 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Install Hadoop YARN 2.2.0 on MacOS X Mavericks"</h1>
+
+<p>This post is a copy of <a href="http://ac31004.blogspot.com/2013/10/installing-hadoop-2-on-mac_29.html">this post</a> on Blogspot.com.</p>
+
+<p>Here are the steps I used to get Hadoop 2.2.0 working on my MAC running OSX 10.9</p>
+
+<p>Get hadoop from http://www.apache.org/dyn/closer.cgi/hadoop/common/</p>
+
+<p>make sure JAVA_HOME is set (if you have Java 6 on your machine):</p>
+
+<pre><code>export JAVA_HOME=`/usr/libexec/java_home -v1.6`
+</code></pre>
+
+<p>point HADOOP_INSTALL to the hadoop installation directory</p>
+
+<pre><code>export HADOOP_INSTALL=/Applications/hadoop-2.2.0
+</code></pre>
+
+<p>And set the path</p>
+
+<pre><code>export PATH=$PATH:$HADOOP_INSTALL/bin:$HADOOP_INSTALL/sbin
+</code></pre>
+
+<p>You can test hadoop is found with</p>
+
+<pre><code>hadoop version
+</code></pre>
+
+<p>Make sure ssh is set up on your machine by ticking <code>System Preferences -&gt; Sharing -&gt; Remote Login</code>.  And verify it by :</p>
+
+<pre><code>ssh localhost
+</code></pre>
+
+<p>where is the name you used to logon.</p>
+
+<p>In <code>$HADOOP_INSTALL/etc</code> these are the conf files I changed.</p>
+
+<p><code>core-site.xml</code></p>
+
+<pre><code> &lt;configuration&gt;
+   &lt;property&gt;
+     &lt;name&gt;fs.default.name&lt;/name&gt;
+       &lt;value&gt;hdfs://localhost:9000&lt;/value&gt;
+   &lt;/property&gt;
+ &lt;/configuration&gt;
+</code></pre>
+
+<p><code>hdfs-site.xml</code></p>
+
+<pre><code> &lt;configuration&gt;
+   &lt;property&gt;
+     &lt;name&gt;dfs.replication&lt;/name&gt;
+     &lt;value&gt;1&lt;/value&gt;
+   &lt;/property&gt;
+   &lt;property&gt;
+     &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;
+     &lt;value&gt;file:/Users/Administrator/hadoop/namenode&lt;/value&gt;
+   &lt;/property&gt;
+   &lt;property&gt;
+     &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;
+     &lt;value&gt;file:/Users/Administrator/hadoop/datanode&lt;/value&gt;
+   &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Make the directories for the namenode and datanode data (note the file above and the mkdir below will need to reflect where you  want to store the files, I&rsquo;ve stored mine in the home directory of the Administrator user on my Mac).</p>
+
+<pre><code>mkdir -p /Users/Administrator/hadoop/namenode
+mkdir -p /Users/Administrator/hadoop/datanode
+
+hadoop namenode -format
+</code></pre>
+
+<p><code>yarn-site.xml</code></p>
+
+<pre><code>&lt;configuration&gt;
+  &lt;!-- Site specific YARN configuration properties --&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
+    &lt;value&gt;localhost:8032&lt;/value&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.nodemanager-aux-services&lt;/name&gt;
+    &lt;value&gt;madpreduce.shuffle&lt;/value&gt;
+  &lt;/property&gt;
+&lt;/configuration&gt;
+
+
+start-dfs.sh
+start-yarn.sh
+
+jps
+</code></pre>
+
+<p><code>jps</code> should list the following Java processes:</p>
+
+<pre><code>9430 ResourceManager
+9325 SecondaryNameNode
+9513 NodeManager
+9225 DataNode
+9916 Jps
+9140 NameNode
+</code></pre>
+
+<p>If not check log files.  If data node note started and  you get incompatible id&rsquo;s error, stop everything delete datanode directory and recreate
+datanode directory</p>
+
+<p>Try accessing the DFS:</p>
+
+<pre><code>hadoop fs -ls
+</code></pre>
+
+<p>If you get</p>
+
+<pre><code>ls: `.': No such file or directory
+</code></pre>
+
+<p>then there is no home directory in the hadoop file system.  So</p>
+
+<pre><code>hadoop fs -mkdir /user
+hadoop fs -mkdir /user/&lt;username&gt;
+</code></pre>
+
+<p>where is the name you are logged onto the machine with.</p>
+
+<p>Now change to <code>$HADOOP_INSTALL</code> directory and upload a file</p>
+
+<pre><code>cd $HADOOP_INSTALL
+hadoop fs -put LICENSE.txt
+</code></pre>
+
+<p>Finally try a mapreduce job:</p>
+
+<pre><code>cd share/hadoop/mapreduce
+hadoop jar ./hadoop-mapreduce-examples-2.2.0 wordcount LICENSE.txt out
+</code></pre>
+</html>

@@ -1,0 +1,40 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Vagrant: Great for Distributed System Developers"</h1>
+
+<p>Vagrnat是一个工具，方便的配置和访问虚拟机。我们应该会经常用来配置统一的开发和测试环境。</p>
+
+<p>只要机器上安装了VirtualBox和Vagrant，那么下面步骤可以帮助我们配置一个基本开发环境：</p>
+
+<ol>
+<li><p> <code>vagrant box add p32 http://files.vagrantup.com/precise32.box</code> 下载一个标准VirtualBox虚拟机镜像，放到<code>~/.vagrant.d/boxes/p32</code>目录下，以备使用。<code>precise32.box</code>是一个32bit Ubuntu机器。</p></li>
+<li><p> <code>mkdir learn; cd learn; vagrant init p32</code> 创建了一个目录 <code>learn</code>，在其中加入了一个配置文件 Vagrantfile，这个文件中指定使用<code>p32</code>这个镜像作为虚拟机基本镜像。Vagrantfile通常连同<code>learn</code>这个目录中其他源码文件一起加入到版本管理系统里。</p></li>
+<li><p> 修改Vagrantfile，指定一个配置脚本文件<code>bootstrap.sh</code>:</p>
+
+<pre><code>Vagrant.configure("2") do |config|
+  config.vm.box = "precise32"
+  config.vm.provision :shell, :path =&gt; "bootstrap.sh"
+end
+</code></pre>
+
+<p>  并且在当前目录<code>learn</code>下编辑一个配置脚本<code>bootstrap.sh</code>，用来安装Apache</p>
+
+<pre><code>#!/usr/bin/env bash
+apt-get update
+apt-get install -y apache2
+rm -rf /var/www
+ln -fs /vagrant /var/www
+</code></pre></li>
+<li><p>. <code>vagrant up</code> 启动一个虚拟机，执行镜像<code>p32</code>；启动之后，运行<code>bootstrap.sh</code>，安装Apache。</p></li>
+<li><p>. <code>vagrant ssh</code> 通过ssh登录进入启动的虚拟机。虚拟机里有一个目录<code>/vagrant</code>是Host机器上<code>learn</code>目录（Vagrantfile所在目录的）镜像目录。所以虚拟机里可以方便的访问<code>learn</code>里所有的源码。</p></li>
+<li><p>. <code>vagrant suspend</code> 休眠；<code>vagrant resume</code>唤醒；<code>vagrant halt</code>关机；<code>vagrant up</code>启动并且重新执行配置脚本；<code>vagrant reload --provision</code>重启一个已经启动着的虚拟机，并且执行配置脚本。</p></li>
+</ol>
+
+
+<p>通过编辑Vagrantfile，我们可以让<code>vagrant up</code>命令启动好几个虚拟机，每个可以有不同的配置。然后把一个并行系统（比如一个在线广告系统）部署在这几台虚拟机上，并且执行。机群操作系统Skynet就是用这种方法做自动化测试的。</p>
+</html>

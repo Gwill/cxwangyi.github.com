@@ -1,0 +1,165 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Use Google Libs with Blade on Mac OS X</h1>
+
+<p>In this
+<a href="http://cxwangyi.github.com/2013/02/22/use-blade-with-mac-os-x/">article</a>,
+I explained how to use
+<a href="http://code.google.com/p/typhoon-blade/">typhoon-blade</a> on Mac OS X.</p>
+
+<p>In addition to the build tool <code>blade</code>, the typhoon-blade project also
+provides a set of handful libraries open sourced by Google, collectly
+known as <code>google-libs</code>, prebuilt for 64-bit Linux.</p>
+
+<p>I use these libraries in programming distributed systems, as they
+would be linked statically by blade into my program, thus makes it
+easy to deploy my programs on computer cluster running Linux, without
+bothering me to deploy dependent dynamic libraries.</p>
+
+<p>However, my primary development environment is Mac OS X.  So I
+modified teh build rules of google-libs to make it work with Mac OS X.
+Also, I need to change blade a little to make it adapt my changes to
+google-libs.</p>
+
+<p>Because after you unpack google-libs, the code goes into a directory
+known as <code>//thirdparty</code>, in the rest of this post, I use the word
+<code>google-libs</code> and <code>thirdparty</code> interchangablly.</p>
+
+<h2>Fake <code>//thirdparty</code> on Mac OS X</h2>
+
+<p>The google-libs contains primarily the following three libraries:
+<code>//thirdparty/glog</code>, <code>//thirdparty/gtest</code>, and <code>//thirdparty/gflags</code>.
+What I did is to change BUILD files of these libraries and make them
+alias to the system-wide libraries installed using Homebrew.</p>
+
+<h3>Edit <code>//thirdparty/gtest/BUILD</code></h3>
+
+<p>We would like to use the gtest installed by Homebrew, instead of the
+one in corp SVN prebuilt for 64-bt Linux.  So edit
+<code>//thirdparty/gtest/BUILD</code> and make the target
+<code>//thirdparty/gtest:gtest</code> an alias of <code>#gtest</code>.</p>
+
+<pre><code>cc_library(name = 'gtest',
+           srcs = 'null.cc',
+           deps = ['#gtest']
+          )
+
+cc_library(name = 'gtest_main',
+           srcs = 'null.cc',
+           deps = ['#gtest_main']
+          )
+
+# cc_test(
+#    name = 'gtest_test',
+#    srcs = 'gtest_test.cc'
+# )
+</code></pre>
+
+<p>Note that we need to add <code>srcs = 'null.cc'</code> into the <code>cc_libraray</code>;
+otherwise, it would complains that the command <code>ar cr libgtest.a</code>
+creates an empty archive.</p>
+
+<h3>Edit <code>//thirdparty/glog/BUILD</code></h3>
+
+<pre><code>cc_library(
+    name = 'glog',
+    srcs = 'null.cc',
+    # deps = '//thirdparty/glog-0.3.2/src:glog'
+    deps = ['#glog', '#gflags']
+)
+
+cc_test(
+    name = 'glog_test',
+    srcs = 'glog_test.cc',
+    deps = ':glog'
+)
+</code></pre>
+
+<h3>Edit <code>//thirdparty/gflags/BUILD</code></h3>
+
+<pre><code>cc_library(
+    name = 'gflags',
+    srcs = 'null.cc',
+    # deps = '//thirdparty/gflags-2.0/src:gflags'
+    deps = '#gflags'
+)
+
+cc_test(
+    name = 'gflags_test',
+    srcs = 'gflags_test.cpp',
+    deps = ':gflags'
+)
+</code></pre>
+
+<h2>No <code>//thirdparty</code> in Include Path</h2>
+
+<p>By default, <code>blade</code> would try to find header files in <code>//thirdparty</code>.
+So, even if we write <code>#include &lt;glog/logging.h&gt;</code> in our source code,
+<code>blade</code> would find <code>//thirdparty/glog/logging.h</code>, instead of
+<code>/usr/local/include/glog/logging.h</code>.</p>
+
+<p>To change this, we need to modify <code>blade/blade.conf</code> as follows:</p>
+
+<pre><code>cc_config(
+    # extra_incs='/thirdparty'
+    extra_incs='/usr/local/include'
+)
+</code></pre>
+
+<h2>Linker Flags for Mac OS X</h2>
+
+<p>The Apple <code>ld</code> coming with Mac OS X does not recognize the flag
+<code>--no-undefined</code> as GNU <code>ld</code>, but it supports a flag, <code>--undefined
+error</code>, which has exactly the same function.  So we need to modify
+<code>blade</code> source code file <code>~/blade/src/blade/cc_targets.py</code> to change
+the following line</p>
+
+<pre><code>self._write_rule('%s.Append(LINKFLAGS=["-Xlinker", "--no-undefined"])'
+</code></pre>
+
+<p>by</p>
+
+<pre><code>self._write_rule('%s.Append(LINKFLAGS=["--undefined error"])'
+</code></pre>
+
+<p>Remember to redistribute <code>blade</code> by running <code>~/blade/dist_blade</code>.</p>
+
+<h2>Use System-wide <code>protoc</code></h2>
+
+<p>In order to use the system-wide <code>protoc</code> instead of the one prebuilt
+by blade authors for Linux, we need to edit <code>blade.conf</code> and change
+the following</p>
+
+<pre><code>proto_library_config(
+    protoc='thirdparty/protobuf/bin/protoc',
+    protobuf_libs=['thirdparty/protobuf:protobuf'],
+    protobuf_path='thirdparty',
+    protobuf_include_path = 'thirdparty',
+    protobuf_php_path='thirdparty/Protobuf-PHP/library',
+    protoc_php_plugin='thirdparty/Protobuf-PHP/protoc-gen-php.php'
+)
+</code></pre>
+
+<p>into</p>
+
+<pre><code>proto_library_config(
+    protoc='/usr/local/bin/protoc',
+    protobuf_libs=['#protobuf'],
+    protobuf_path='/usr/local/lib',
+    protobuf_include_path = '/usr/local/include/google',
+)
+</code></pre>
+
+<h2>Use System-wide <code>libgtest_main.a</code></h2>
+
+<p>We need to change <code>blade.conf</code> to tell blade to link the system-wide
+<code>libgtest_main</code> instead of that in <code>//thirdparty</code>.</p>
+
+<pre><code>gtest_main_libs=['#gtest_main']
+</code></pre>
+</html>

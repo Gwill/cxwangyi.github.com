@@ -1,0 +1,85 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Install and Configure Go</h1>
+
+<p>This short note is about how to install Go compiler and configure Emacs to be an IDE for Go.</p>
+
+<h2>Install Prerequisits</h2>
+
+<p>On Debian/Ubuntu Linux:</p>
+
+<pre><code>sudo apt-get install gcc mercurial emacs
+</code></pre>
+
+<p>where mercurial will be used to retreive Go source code, gcc will be used to build Go from source code, and emacs will be configured as the IDE of Go language.</p>
+
+<p>On Mac OS X, we need to install Homebrew and Xcode.  This would give you gcc and mercurial.  Then you need to install emacs:</p>
+
+<pre><code>brew install emacs --HEAD --use-git-head --cocoa --srgb
+</code></pre>
+
+<h2>Build from Source Code</h2>
+
+<pre><code>cd ~/
+export PATH=~/go/bin:$PATH
+hg clone -u release https://code.google.com/p/go
+cd go/src/
+./all.bash
+</code></pre>
+
+<p>You might want to put the following line into your <code>~/.profile</code> file:</p>
+
+<pre><code>export PATH=~/go/bin:$PATH
+</code></pre>
+
+<h2>Build Other Tools</h2>
+
+<pre><code>mkdir -p /tmp/gotools
+export GOPATH=/tmp/gotools
+go get code.google.com/p/go.tools/cmd/...
+go get github.com/nsf/gocode
+go get code.google.com/p/rog-go/exp/cmd/godef
+mv /tmp/gotools/bin/* ~/go/bin/
+</code></pre>
+
+<h2>Configure Emacs</h2>
+
+<p>To download and compile Emacs plugins for Go:</p>
+
+<pre><code>mkdir -p ~/.emacs.d/lisp
+cd ~/.emacs.d/lisp
+wget https://raw.githubusercontent.com/dominikh/go-mode.el/master/go-mode.el
+emacs -batch -f batch-byte-compile go-mode.el
+wget https://raw.githubusercontent.com/sah/emacs/master/go-mode-load.el
+</code></pre>
+
+<p>Update <code>go-mode-load.el</code> according to your <code>go-mode.el</code> file:</p>
+
+<pre><code>emacs ~/.emacs.d/lisp/go-mode-load.el
+</code></pre>
+
+<p>Move the cursor to the end of the S-expression denoted as &ldquo;update this file&rdquo; and press <code>C-x C-e</code>.  The <code>go-mode-load.el</code> file&rsquo;s content will change.  Then you can type <code>C-x C-s</code> to save the changed content.</p>
+
+<p>Then edit your <code>~/.emacs</code> file and add the following content:</p>
+
+<pre><code>((show-paren-mode 1)
+(add-to-list 'load-path "~/.emacs.d/lisp" t)
+(require 'go-mode-load)
+(add-hook 'before-save-hook 'gofmt-before-save)
+(add-hook 'go-mode-hook
+      (lambda ()
+        (setq-default)
+        (setq tab-width 4)
+        (setq standard-indent 4)
+        (setq indent-tabs-mode nil)
+        (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)
+        (local-set-key (kbd "C-c i") 'go-goto-imports)))
+</code></pre>
+
+<p>If you want more sophisticated configurations like auto-completion and on-the-fly syntax checking, please refer to <a href="http://dominik.honnef.co/posts/2013/03/writing_go_in_emacs/">this post</a> for more details.</p>
+</html>

@@ -1,0 +1,53 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Set Connect Timeout</h1>
+
+<p>When we talk about timeout, we might refer to connection timeout,
+sending timeout or receiving timeout.  This post is about setting the
+connection timeout with Linux and BSD (Mac OS X).</p>
+
+<h2>Set Timeout in Programs</h2>
+
+<p>In header file <code>sys/socket.h</code>, there is an API:</p>
+
+<pre><code>int setsockopt(int socket, int level, int option_name, const void *option_value, socklen_t option_len);
+</code></pre>
+
+<p>You can set the parameter <code>option_name</code> by one of the following</p>
+
+<pre><code>SO_SNDTIMEO     set timeout value for output
+SO_RCVTIMEO     set timeout value for input
+</code></pre>
+
+<p>to specify sending or recieving timeouts.</p>
+
+<p>The following Linux kernel code snippet shows that the connection
+timeout can also be set by using <code>SO_SNDTIMEO</code>.</p>
+
+<pre><code>timeo = sock_sndtimeo(sk, flags &amp; O_NONBLOCK);
+
+if ((1 &lt;&lt; sk-&gt;sk_state) &amp; (TCPF_SYN_SENT | TCPF_SYN_RECV)) {
+   /* Error code is set above */
+   if (!timeo || !inet_wait_for_connect(sk, timeo))
+       goto out;
+
+   err = sock_intr_errno(timeo);
+   if (signal_pending(current))
+   goto out;
+}
+</code></pre>
+
+<h2>Overriding the Default Linux Connection Timeout</h2>
+
+<p>According to <a href="http://www.sekuda.com/overriding_the_default_linux_kernel_20_second_tcp_socket_connect_timeout">this post</a>, OS kernels have limits on the number of retries and timeout.  To change the OS defaults in a running Linux kernel, you can use the <code>/proc</code> interface:</p>
+
+<pre><code># cat /proc/sys/net/ipv4/tcp_syn_retries
+5
+# echo 6 &gt; /proc/sys/net/ipv4/tcp_syn_retries
+</code></pre>
+</html>

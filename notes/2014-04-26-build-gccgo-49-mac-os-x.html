@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+</head>
+<body>
+<h1>Build GCCGO 4.9 on Mac OS X</h1>
+
+<p>GCC 4.9 includes gccgo 4.9 that supports Go 1.2.  We can install the full GCC 4.9 package using Homebrew.</p>
+
+<p>First of all, you need to <code>tap</code> the GCC 4.9 installation rule:</p>
+
+<pre><code>brew tap homebrew/versions
+brew install gcc49
+</code></pre>
+
+<p>It is noticable that Homebrew only installs languages supports of C, C++, Objective-C, and Objective-C++ by default.  To make Homebrew install gccgo as well, we can edit the installation instruction file:</p>
+
+<pre><code>emacs `$(brew --repository)/Library/Formula/gcc49.rb`
+</code></pre>
+
+<p>In particular, we add <code>gccgo</code> to all lines like:</p>
+
+<pre><code>languages = %w[c c++ objc obj-c++]
+</code></pre>
+
+<p>So we have</p>
+
+<pre><code>languages = %w[c c++ go objc obj-c++]
+</code></pre>
+
+<p>Then we can run <code>brew install gcc49</code>, which would take a very long time.</p>
+</html>

@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
    <meta name="author" content="Yi Wang" />
-   <link href="https://raw.githubusercontent.com/daktales/Mou-Themes-Collection/master/Mou%20Themes%20Collection/CSS/Solarized%20(Light).css" rel="stylesheet"></link>
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
 </head>
 <body>
 <h2>LDA和MapReduce：</h2>
@@ -29,3 +28,4 @@
 <p>随后白红杰在我们的代码基础上修改了数据结构，使其更适合MPI的AllReduce操作。这样就得到了一个高效率的LDA实现。我们把用MapReduce和MPI实现的LDA的Gibbs sampling算法发表在<a href="http://plda.googlecode.com/files/aaim.pdf">这篇论文</a>里了。</p>
 
 <p>当我们踌躇于MPI的扩展性不理想而MapReduce的效率不理想时，Google MapReduce团队的几个人分出去，开发了一个新的并行框架Pregel。当时Pregel项目的tech lead访问中国。这个叫Grzegorz Malewicz的波兰人说服了我尝试在Pregel框架下验证LDA。但是在说这个故事之前，我们先看看Google Rephil——另一个基于MapReduce实现的并行隐含语义分析系统。</p>
+</html>

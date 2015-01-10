@@ -1,11 +1,4 @@
----
-layout: post
-title: "Install Hadoop YARN 2.2.0 on MacOS X Mavericks"
-description: ""
-category: 
-tags: []
----
-{% include JB/setup %}
+# Install Hadoop YARN 2.2.0 on MacOS X Mavericks"
 
 This post is a copy of [this post](http://ac31004.blogspot.com/2013/10/installing-hadoop-2-on-mac_29.html) on Blogspot.com.
 
@@ -40,29 +33,29 @@ In `$HADOOP_INSTALL/etc` these are the conf files I changed.
 
 `core-site.xml`
 
-     <configuration>  
-       <property>  
-         <name>fs.default.name</name>  
-           <value>hdfs://localhost:9000</value>  
-       </property>  
-     </configuration>  
+     <configuration>
+       <property>
+         <name>fs.default.name</name>
+           <value>hdfs://localhost:9000</value>
+       </property>
+     </configuration>
 
 `hdfs-site.xml`
 
-     <configuration>  
-       <property>  
-         <name>dfs.replication</name>  
-         <value>1</value>  
-       </property>  
-       <property>  
-         <name>dfs.namenode.name.dir</name>  
-         <value>file:/Users/Administrator/hadoop/namenode</value>  
-       </property>  
-       <property>  
-         <name>dfs.datanode.data.dir</name>  
-         <value>file:/Users/Administrator/hadoop/datanode</value>  
-       </property>  
-    </configuration>  
+     <configuration>
+       <property>
+         <name>dfs.replication</name>
+         <value>1</value>
+       </property>
+       <property>
+         <name>dfs.namenode.name.dir</name>
+         <value>file:/Users/Administrator/hadoop/namenode</value>
+       </property>
+       <property>
+         <name>dfs.datanode.data.dir</name>
+         <value>file:/Users/Administrator/hadoop/datanode</value>
+       </property>
+    </configuration>
 
 Make the directories for the namenode and datanode data (note the file above and the mkdir below will need to reflect where you  want to store the files, I've stored mine in the home directory of the Administrator user on my Mac).
 
@@ -73,17 +66,17 @@ Make the directories for the namenode and datanode data (note the file above and
 
 `yarn-site.xml`
 
-    <configuration>  
-      <!-- Site specific YARN configuration properties -->  
-      <property>  
-        <name>yarn.resourcemanager.address</name>  
-        <value>localhost:8032</value>  
-      </property>  
-      <property>  
-        <name>yarn.nodemanager-aux-services</name>  
-        <value>madpreduce.shuffle</value>  
-      </property>  
-    </configuration>  
+    <configuration>
+      <!-- Site specific YARN configuration properties -->
+      <property>
+        <name>yarn.resourcemanager.address</name>
+        <value>localhost:8032</value>
+      </property>
+      <property>
+        <name>yarn.nodemanager-aux-services</name>
+        <value>madpreduce.shuffle</value>
+      </property>
+    </configuration>
 
 
     start-dfs.sh
@@ -107,7 +100,7 @@ Try accessing the DFS:
 
     hadoop fs -ls
 
-If you get 
+If you get
 
     ls: `.': No such file or directory
 
@@ -121,7 +114,7 @@ where is the name you are logged onto the machine with.
 Now change to `$HADOOP_INSTALL` directory and upload a file
 
     cd $HADOOP_INSTALL
-    hadoop fs -put LICENSE.txt 
+    hadoop fs -put LICENSE.txt
 
 
 Finally try a mapreduce job:

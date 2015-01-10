@@ -1,0 +1,72 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>Use Blade with Mac OS X</h1>
+
+<p><a href="http://code.google.com/p/typhoon-blade">typhoon-blade</a> is a
+convenient software build tool designed for Linux.  However, in order
+to use it under Mac OS X, you need to do some hacks.</p>
+
+<h2>The <code>readlink</code> Tool</h2>
+
+<p>Mac OS X uses BSD user tools, which might have different command line
+flags compared with their counterparts with Linux.</p>
+
+<p>After download and unpack <code>blade</code> into an arbitrary directory, say
+<code>~/blade</code>, you need to edit <code>~/blade/blade</code> and change the command
+line flag of all <code>readlink</code> invocations into <code>-n</code>.</p>
+
+<p>After doing so, you cannot invoke blade by <code>~/blade/blade</code> directly;
+instead, you need to create a symbolic link, say, <code>~/bin/blade --&gt;
+~/blade/blade</code>, and invoke that symbolic link.</p>
+
+<h2>Relax the Compiler</h2>
+
+<p>In order to force developers using Google C++ code style, blade would
+require the C++ compiler to do strict syntax checking.  The following
+flags appear in <code>~/blade/src/blade/blade_platform.py</code>:</p>
+
+<pre><code>            "-Werror=char-subscripts",
+            "-Werror=comments",
+            "-Werror=conversion-null",
+            "-Werror=empty-body",
+            "-Werror=endif-labels",
+            "-Werror=format",
+            "-Werror=format-nonliteral",
+            "-Werror=missing-include-dirs",
+            "-Werror=non-virtual-dtor",
+            "-Werror=overflow",
+            "-Werror=overloaded-virtual",
+            "-Werror=parentheses",
+            "-Werror=reorder",
+            "-Werror=return-type",
+            "-Werror=sequence-point",
+            "-Werror=sign-compare",
+            "-Werror=switch",
+            "-Werror=type-limits",
+            "-Werror=uninitialized",
+            "-Werror=unused-label",
+            "-Werror=unused-result",
+            "-Werror=unused-value",
+            "-Werror=unused-variable",
+            "-Werror=write-strings"
+</code></pre>
+
+<p>However, these checks would be too strict that even the standard C++
+library coming with XCode 4.6 does not pass the check.</p>
+
+<p>I removed some of them, in particular, <code>-Werror=empty-body</code> and
+<code>-Werror=missing-include-dirs</code>, to make it work with Mac OS X.</p>
+
+<p><em>IMPORTANT:</em> After doing above changes, you need to repack the Python
+ code to make it work:</p>
+
+<pre><code> cd ~/blade
+ ./dist_blade
+</code></pre>
+</html>

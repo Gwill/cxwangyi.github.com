@@ -1,0 +1,96 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>Channels in Go</h1>
+
+<h2>Reference Type</h2>
+
+<p>A channel variable is in fact a C pointer pointing to a blocking queue
+implementation in C.  So, it is cheap to pass a channel as function
+parameters.</p>
+
+<h2>Access</h2>
+
+<p>Channel variables can be defined for read-and-write (bidirectional),
+read-only (outbound) and write-only (inbound).</p>
+
+<pre><code>chan   int  // a channel can be written into and read from
+chan&lt;- int  // integers can be written into the channel
+&lt;-chan int  // integers can be read out from the channel
+</code></pre>
+
+<h2>Creation</h2>
+
+<p>Channels are created using <code>make</code>:</p>
+
+<pre><code>c := make(chan int)      // unbuffered channel of integers
+c := make(chan int, 100) // buffered channel of integers
+</code></pre>
+
+<p>The buffer size is the size of the blocking queue.</p>
+
+<h2>Cap and Len</h2>
+
+<p>The builtin function <code>cap</code>, when applied with a channel, returns the
+buffer capacity.</p>
+
+<p>The builtin function <code>len</code>, when applied with a channel, returns the
+number of elements queued in the channel buffer.</p>
+
+<p><code>cap</code> and <code>len</code> return 0 for <code>nil</code> channels.</p>
+
+<h2>Read and Write</h2>
+
+<p>Writing to a full (or unbuffered) channel blocks, until a reader reads
+something thus make room in the buffer.</p>
+
+<p>Reading to a full (or unbuffered) channel blocks, until a writers
+writes something that can be read.</p>
+
+<h2>Close a Channel</h2>
+
+<p>A sender can close a bidirectional or outbound channel using <code>close</code>,
+after send the last value.</p>
+
+<p>After this, any receive from the channel will succeed without
+blocking, returning the zero value of the channel element.  The form:</p>
+
+<pre><code>x, ok := &lt;-c
+</code></pre>
+
+<p>will also set <code>ok</code> to <code>false</code> for a closed channel.</p>
+
+<h2>Use with For-Range</h2>
+
+<p>The following <code>for</code> loop reads values sent on channel <code>c</code> until the
+<code>c</code> is closed.</p>
+
+<pre><code>for e := range c {
+   // process e
+}
+</code></pre>
+
+<h2>Use for Comminication</h2>
+
+<p>Communication is the primary design purpose of channels.  There are
+many use cases on the Internet.</p>
+
+<h2>Use for Notification</h2>
+
+<p>Channel can also be used for communication of notifications.</p>
+
+<pre><code>c := make(chan int)
+go func() {
+  list.Sort()
+  c &lt;- 1 // notify task completion
+}
+&lt;-c  // wait unitl list.Sort() is completed.
+</code></pre>
+
+<p>Above example can be extended to wait for a group of goroutines.</p>
+</html>

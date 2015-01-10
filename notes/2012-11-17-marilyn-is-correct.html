@@ -1,0 +1,64 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>醉汉的脚步:Marilyn没错</h1>
+
+<p>我看到有人的博客里在讨论 The Drundard&rsquo;s Walk 里的一个问题：</p>
+
+<p>Suppose the contestants on a game show are given the choice of three
+doors: Behind one door is a car; behind the others, goats. After a
+contestant picks a door, the host, who knows what’s behind all the
+doors, opens one of the unchosen doors, which reveals a goat. He then
+says to the contestant, &ldquo;Do you want to switch to the other unopened
+door?&rdquo; Is it to the contestant&rsquo;s advantage to make the switch?</p>
+
+<p>论坛上有人争论这个参赛者是否应该换选择（或者为什么）；很多争论的结果是
+不需要换。这样的争论结果和书中描述的当年很多美国数学家的结论是一致的。
+实际上，我自己的直觉也是不需要换。并且我母亲听说了这个问题后，直觉也是。</p>
+
+<p>可是正确答案是“要换”。今天在地铁上，我想明白了，特此记录。</p>
+
+<p>为了讨论方便，先把上面的问题翻译成中文：</p>
+
+<p>在一个电视游戏里，有三个门，其中两扇后面各自是一只羊，另一扇后面是一辆
+车。参赛者可以随机选择一扇门（后面要么是一只羊，或者是一辆车）；随后主
+持人在公布答案之前打开剩下的两扇门中的一扇后面是羊的门（这样剩下的一扇
+门既不是参赛者选择的，也不是主持人打开的），然后主持人问参赛者要不要更
+换自己的选择（换到剩下的第三扇）。问题是：参赛者有必要更换自己的选择吗？</p>
+
+<h2>直觉</h2>
+
+<p>因为有两扇门后面是羊，所以不管参赛者选择哪一扇门，主持人必然能打开一扇
+不是参赛者选择的，并且后面是羊的门。既然有这个事实，那么看起来参赛者是
+在两扇门中选择一扇，所以抽到车的概率是 50%。那么也就不需要麻烦去更换自
+己的选择了。</p>
+
+<h2>分析</h2>
+
+<p>先假设1号门后面是车，2号和3号后面是羊。（随后我们会推广到其他情况。）那
+么会有以下可能：</p>
+
+<pre><code>1. 参赛者选择1号门，那么主持人有两个选择：
+   1.1. 主持人打开2号门。此时参赛者没必要更换自己的选择为3号门。
+   1.2. 主持人打开3号门。此时也没必要更换选择。
+
+2. 参赛者选择2；主持人只有一种选择：
+   2.1. 主持人开打3。此时参赛者应该更换。
+
+3. 参赛者选择3；主持人只有一种选择：
+   3.1. 主持人打开2.此时参赛者应该更换。
+</code></pre>
+
+<p>上面的博弈树一共有四个叶节点，其中两个是“应该换”，另外两个是“不应该换”。
+这么看起来，换和不换各自是 50% 的可能性，那就没必要换了。</p>
+
+<p>可是要是这么想，那就错了。因为“换不换“是基于参赛者的三种可能选择之一来
+决断的，所以应该是只有当参赛者选择1的时候”不换“，而另外两种（参赛者选择
+的）情况下，都是”换“。所以”换“的概率是 2/3，而不换的概率是 1/3；最终答
+案应该是“换”！</p>
+</html>

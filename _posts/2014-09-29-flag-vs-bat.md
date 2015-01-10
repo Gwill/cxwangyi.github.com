@@ -1,11 +1,4 @@
----
-layout: post
-title: "美国FLAG和中国BAT的比较"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# 美国FLAG和中国BAT的比较
 
 离开北京来硅谷半年了；每周坚持和至少一家创业公司交流，从各位创始人以及投资人那里听说了一些意见。加上之前在Google和腾讯的工作体会，说说我对美国和中国互联网公司的比较的理解。
 

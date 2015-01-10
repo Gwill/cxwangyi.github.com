@@ -1,0 +1,119 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>Programming in Clojure</h1>
+
+<p>We are going to extend a Java system, which must be able to start Pig,
+Hive and Hadoop jobs.  As a programmer with 19 years experience with
+C++, I have no interest to learn Java.  I like Go, but I found no way
+to invoke Java API from Go.  So I am going to retreat to Clojure, a
+Lisp dialect, which I am expecting as powerful as Lisp, the most
+expressive language ever.</p>
+
+<p>This article is my learning note of Clojure, aiming at learn it as
+fast as possible to start development in production.</p>
+
+<h2>The Compiler</h2>
+
+<p>Clojure is a Java package.  We can checkout the source code from
+Github and build it using Maven:</p>
+
+<pre><code>git clone https://github.com/clojure/clojure.git
+cd clojure
+mvn -T 6 install
+</code></pre>
+
+<p>This will give you <code>target/clojure-1.7.0-master-SNAPSHOT.jar</code>.  When
+we run <code>clojure.main</code> in this pacakge, we got a REPL:</p>
+
+<pre><code>java -cp target/clojure-1.7.0-master-SNAPSHOT.jar clojure.main
+</code></pre>
+
+<h2>The Hello World Program</h2>
+
+<p>Write a hello world program, say <code>/tmp/app.hello.clj</code>:</p>
+
+<pre><code>(ns helloworld (:gen-class))
+(defn -main [&amp; args] (println "Hello world!"))
+</code></pre>
+
+<p>We can build this program from within the REPL:</p>
+
+<pre><code>cd /tmp
+java -cp ~/Projects/clojure/target/clojure-1.7.0-master-SNAPSHOT.jar clojure.main
+=&gt; (compile 'app.hello)
+</code></pre>
+
+<p>If <code>compile</code> prompts error messages like</p>
+
+<pre><code>CompilerException java.io.IOException: No such file or directory, compiling:(app/hello.clj:1:1)
+</code></pre>
+
+<p>you need to create a directory name <code>classes</code> in the current directory:</p>
+
+<pre><code>mkdir /tmp/classes
+</code></pre>
+
+<p>and compile the program again.  This should give you
+<code>/tmp/classes/app/hello.class</code>.  You can run this program:</p>
+
+<pre><code>java -cp ~/Projects/clojure/target/clojure-1.7.0-master-SNAPSHOT.jar:/tmp/classes app.hello
+</code></pre>
+
+<p>which should print</p>
+
+<pre><code>Hello world!
+</code></pre>
+
+<h2>The Build System</h2>
+
+<p>Above build procedure is unbearablly complex.  Usually people build
+Clojure projects using Leiningen.   To install Leiningen on Mac OS X:</p>
+
+<pre><code>brew update &amp;&amp; brew doctor &amp;&amp; brew install leiningen
+</code></pre>
+
+<p>Then you can create a project using Leiningen</p>
+
+<pre><code>cd /tmp
+lein new app hello
+</code></pre>
+
+<p>This creates a directory <code>hello</code> containing a template program.  You
+can build it using</p>
+
+<pre><code>cd hello
+lein uberjar
+</code></pre>
+
+<p>This creates <code>/tmp/hello/target/hello-0.1.0-SNAPSHOT-standalone.jar</code>.
+You can run it as:</p>
+
+<pre><code>java -cp /tmp/hello/target/uberjar/hello-0.1.0-SNAPSHOT-standalone.jar hello.core
+</code></pre>
+
+<p>Or, a simple form is</p>
+
+<pre><code>cd /tmp/hello
+lein run
+</code></pre>
+
+<h2>The Editor</h2>
+
+<p>Most Clojure programmer use Emacs.  You can use Homebrew to install
+Emacs 24 on Mac OS X:</p>
+
+<pre><code>brew install --cocoa --srgb emacs
+</code></pre>
+
+<p>Then we can use package <code>package</code> to install Clojure related plugins.
+In Emacs, type <code>C-x list-packages</code>, you will see a list of packages.
+Type <code>i</code> to mark for installation, <code>u</code> for unmark, <code>d</code> for uninstall,
+and <code>x</code> for execute (start install and uninstall).  You need to
+install <code>clojure-mode</code> and <code>cider</code>.</p>
+</html>

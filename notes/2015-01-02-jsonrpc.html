@@ -1,0 +1,213 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>iOS Apps &ndash; JSON-RPC &ndash; Go Servers</h1>
+
+<h2>JSON RPC</h2>
+
+<p>当我们开发一个移动应用的时候，碰到的第一个问题恐怕就是“mobile app 和 server 如何通信？” 通常有两种方式： RESTful API 和 JSON RPC。关于如何二选一，仁者见仁智者见智，众口难调，比如这个在<a href="http://stackoverflow.com/questions/15056878/rest-vs-json-rpc"> Stackoverflow</a>上的讨论。</p>
+
+<p>因为我自己之前的工作经历主要是 backend server 之间的通信，而这类通信完全依赖 backend RPC 技术。受到这段经验的影响，当我开始尝试 mobile app 和 server 之间的通信时，自然地选择了 JSON RPC。</p>
+
+<p>这篇笔记记录如何写一个 iOS 程序调用一个 Go 写的 JSON RPC server。所有源码都在<a href="https://github.com/wangkuiyi/ios-go-jsonrpc">这里</a>。</p>
+
+<h4>JSON RPC 和 Backend RPC</h4>
+
+<p>JSON RPC 是一种通过 Internet 访问服务的方式。各种 backend RPC 技术，包括 Google Stubby、Facebook Thrift 以及 MsgPack，是通过数据中心（IDC） 内部网络连接 frontend server 和 backend server 的（后者连接不同的 backend server）。</p>
+
+<p>为了跨越防火墙方便，JSON RPC 是定义在 HTTP 协议之上的。为了方便用浏览器调试服务器程序，也为了便于用各种标准工具（比如 curl 和 wget） 来监控服务，backend RPC 往往也是基于 HTTP 协议的。</p>
+
+<p>作为一种跨越 Internet的通信方式，JSON RPC 的使用者们有更大的热情来协调和定义一个通信协议标准。这就有了 JSON RPC 1.0 和 2.0 两个版本。后者有一些新颖的功能，比如支持一个 HTTP 请求携带多个 RPC calls。不管哪个版本，传输过程中的数据格式（wire format） 都是 JSON。</p>
+
+<p>作为 IDC 内部的通信方式，backend RPC 有很多不同的实现。我在腾讯工作的时候，看到同事们借鉴 Google Stubby 开发了一套称为 Poppy 的backend RPC，不仅效率非常高，而且很稳定。我负责设计和开发的广告系统就是基于 Poppy 的。后来 Poppy 的第一作者陈锋也加入了广告团队了。Poppy 和 Stubby 一样，都是用 Google Protobuf 作为 wire format。</p>
+
+<h2>Objective-C Client</h2>
+
+<h3>客户端程序</h3>
+
+<p>我们准备写一个简单的验证 JSON RPC 的 iOS app。如果它能成功调用JSON RPC 服务，则创建一个全屏幕的绿色窗口；否则创建一个红色窗口。</p>
+
+<p>我们用 Xcode 创建一个 iOS 项目。记得选择“iOS / Single View Application” 模板。给项目起个名字，比如叫做 <code>LearnJSONRPC</code>。</p>
+
+<p>我用的是 Xcode 6.1.1.，所以按照模板创建的项目默认是使用 Storyboard 的。但是我们的这个示例程序是在不需要 Storyboard 这么重量级 UI 构造机制。所以请从Xcode 最左边的tree view 里，把 <code>Main.storyboard</code>, <code>Images.xcassets</code>, 和 <code>LaunchScreen.xib</code> 三个文件删除掉。然后打开 <code>Supported Files</code>目录里的<code>Info.plist</code>文件，将其中对 <code>Main</code>, <code>LaunchScreen</code>的引用删除掉。</p>
+
+<p>此时，按下<code>Cmd+R</code>，Xcode 会编译项目，并且在模拟器里运行<code>LearnJSONRPC</code>程序。此时，我们应该看到整个屏幕都是黑色的——因为我们的程序没有创建自己的窗口。</p>
+
+<h3>安装 AFJSONRPCClient 库</h3>
+
+<p>在 Wikipedia 上列出了很多 JSON RPC 的实现。其中包括 Objective-C 的实现。我用的是 <a href="https://github.com/AFNetworking/AFJSONRPCClient">AFJSONRPCClient</a>。</p>
+
+<p>因为 AFJSONRPCClient 依赖 AFNetwroking，所以如果我们用 AFSJSONRPCClient，就也得安装 AFNetworking。所幸，这两个 iOS frameworks 都可以用 Cocoapods 来安装。为此，我们首先要安装 Cocoapods：</p>
+
+<pre><code>sudo gem install cocoapods
+</code></pre>
+
+<p>更详尽的安装方法请参加<a href="http://guides.cocoapods.org/using/getting-started.html">这里</a>。</p>
+
+<p>随后，我们通过 Cocoapods 来安装我们需要的第三方库。在<code>LearnJSONRPC</code>项目的目录里，创建一个名为<code>Podfile</code>文件，其中内容是：</p>
+
+<pre><code>source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '7.0'
+pod 'AFJSONRPCClient', '~&gt; 2.1'
+pod 'AFNetworking', '~&gt; 2.4'
+</code></pre>
+
+<p>然后在同一目录下运行</p>
+
+<pre><code>pod install
+</code></pre>
+
+<p>这样就下载和安装了 AFJSONRPCClient 和 AFNetworking 两个库了。</p>
+
+<p>同时，我们会发现目录里多出来一个<code>LearnJSONRPC.xcworkspace</code>文件。我们先关掉 Xcode 程序，然后通过运行下面命令再次启动 Xcode 程序：</p>
+
+<pre><code>open -a Xcode LearnJSONRPC.xcworkspace
+</code></pre>
+
+<h3>调用 AFJSONRPCClient</h3>
+
+<p>打开<code>AppDelegate.m</code>文件，增加头文件依赖</p>
+
+<pre><code>#import "ViewController.h"
+#import "AFJSONRPCClient/AFJSONRPCClient.h"
+</code></pre>
+
+<p>其中，<code>ViewController.h</code>是 Xcode 按照模板为我们生成的，<code>AFJSONRPCClient/AFJSONRPCClient.h</code>是通过 Cocoapods 安装的 AFJSONRPCClient 库提供的。</p>
+
+<p>随后，修改 AppDelegate 重载的 method：</p>
+
+<pre><code>- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+
+  AFJSONRPCClient *client = [AFJSONRPCClient
+      clientWithEndpointURL:
+          [NSURL URLWithString:@"http://192.168.1.135:6061/rpc"]];
+  if (!client) {
+    self.window.backgroundColor = [UIColor redColor];
+  } else {
+    [client invokeMethod:@"HelloService.Say"
+        withParameters:@[ @{
+                         @"Who" : @"Test"
+                       } ]
+        requestId:@(54311)
+        success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            self.window.backgroundColor = [UIColor greenColor];
+        }
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            self.window.backgroundColor = [UIColor blueColor];
+            NSLog(@"%@", [error localizedDescription]);
+        }];
+  }
+
+  self.window.rootViewController = [[ViewController alloc] init];
+  [self.window makeKeyAndVisible];
+  return YES;
+}
+</code></pre>
+
+<p>上述这段代码创建一个窗口，并且去调用 <code>192.168.1.135:6061</code> 上运行的 JSON RPC server 提供的 <code>HelloService.Say</code> RPC 调用。其参数是一个 JSON 数组，其中包括一个结构体，其中有一个名为<code>Who</code>的字段，我们把它的值设置成字符串<code>Test</code>。【需要把参数放进一个 Objective-C 数组里，是佟野教我的！】</p>
+
+<p>上述代码是用 Clang Format程序自动排版过的，让代码风格符合 <a href="http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml">Google 的 Objective-C code style</a>。关于如何安装 Clang Format及其 Xcode 插件，请参加我的这篇<a href="http://zhuanlan.zhihu.com/cxwangyi/19923007">笔记</a>。</p>
+
+<h2>Go Server</h2>
+
+<p>我用的 Go 语言的 JSON RPC 实现是 <a href="http://www.gorillatoolkit.org/pkg/rpc">Gorilla</a>。源码基本上是套用了 Gorilla 的示范程序：</p>
+
+<pre><code>package main
+
+import (
+    "github.com/gorilla/rpc"
+    "github.com/gorilla/rpc/json"
+    "net/http"
+)
+
+type Args struct {
+    Who string
+}
+
+type Reply struct {
+    Message string
+}
+
+type HelloService struct{}
+
+func (h *HelloService) Say(r *http.Request, args *Args, reply *Reply) error {
+    reply.Message = "Hello, " + args.Who + "!"
+    return nil
+}
+
+func main() {
+    s := rpc.NewServer()
+    s.RegisterCodec(json.NewCodec(), "application/json")
+    s.RegisterService(new(HelloService), "")
+    http.Handle("/rpc", s)
+    http.ListenAndServe("0.0.0.0:6061", nil)
+}
+</code></pre>
+
+<p>为了编译这个程序，记得安装 Gorilla 库：</p>
+
+<pre><code>go get github.com/gorilla/rpc/json
+</code></pre>
+
+<p>编译</p>
+
+<pre><code>go install
+</code></pre>
+
+<p>运行</p>
+
+<pre><code>$GOPATH/bin/jsonrpc_server
+</code></pre>
+
+<p>验证</p>
+
+<pre><code>curl -X POST -H "Content-Type: application/json" -d '{"method":"HelloService.Say","params":[{"Who":"Test"}], "id":"54321", "jsonrpc": "2.0"}' http://:6061/rpc
+</code></pre>
+
+<p>应该看到如下结果：</p>
+
+<pre><code>{"result":{"Message":"Hello, Test!"},"error":null,"id":"54321"}
+</code></pre>
+
+<p>这个验证方法是严浩教我的。</p>
+
+<h2>实验</h2>
+
+<p>确定开发机器的 IP 地址。我的是 192.168.1.135，这个地址是家里的无线路由器分配的。</p>
+
+<p>对应修改上述<code>AppDelegate.m</code>文件里的 JSON RPC server 的地址。然后把 iPad 或者 iPhone 通过电缆和开发机连接起来。Xcode 应该发现 iOS 设备，从而允许我们在这个设备上运行<code>LearnJSONRPC</code>程序。</p>
+
+<p>确保我们的 iOS 设备和开发机在同一个子网里（通过同一个无线路由器分配 IP 地址），这样<code>LearnJSONRPC</code>程序可以访问到开发机上运行的 JSON RPC server。</p>
+
+<p>正常情况下，我们应该看到一个绿色窗口占满 iOS 设备屏幕。如果出错，则看到蓝色或者红色窗口，并且在Xcode 的 log 窗口里会显示<code>LearnJSONRPC</code>程序打印的错误信息。</p>
+
+<h2>客户端内幕</h2>
+
+<p>iOS程序调用<code>AFJSONRPCClient::invokeMethod</code>，给定参数和两个 blocks——一个在RPC成功时被调用，用来通告 result，另一个在 RPC 失败时被调用，用来通告 error。result 的类型用 Objective C 的<code>id</code>类型表示，所以是一个通用类型，其中包含的内容应该是 RPC 调用者知道的。比如如果我们知道 result 里有一个字符串类型的字段叫做 weather，那么可以通过如下代码来访问这个字段：</p>
+
+<pre><code>    if ([result isKindOfClass:[NSDictionary class]]) {
+        NSLog(@"@s", result[@"weather"])
+    }
+</code></pre>
+
+<p>error的类型是 NSError，包括一个 domain（字符串）、一个 code（整数）和一个错误消息（字符串）。</p>
+
+<p><code>invokeMethod</code>构造一个 HTTP request，并且放进 AFNetworking 的发送队列里。AFNetworking 创建的发送线程会负责从这个队列里依次取出 request，发出去，接收对应的 response，并且调用调用上文中提到的两个 block 之一，向 iOS 程序通告结果。</p>
+
+<p>按照 JSON RPC 的协议规范要求，这个 HTTP request 会被用 POST 的方式发出去，并且被 POST 的内容包括：</p>
+
+<pre><code>    jsonrpc: 2.0
+    method: &lt;method name&gt;
+    params: &lt;parameters&gt;
+    id: &lt;request id&gt;
+</code></pre>
+
+<p>用户比较关系的是：parameters 应该是 Objective C 的什么类型。答案是：要么是 NSArray，要么是 NSDirecionary。这是 AFJSONRPCClient 库要求的，具体代码请参见AFJSONRPCClient.m 中定义的<a href="https://github.com/AFNetworking/AFJSONRPCClient/blob/master/AFJSONRPCClient/AFJSONRPCClient.m"><code>HTTPRequestOperationWithRequest</code></a>函数。</p>
+</html>

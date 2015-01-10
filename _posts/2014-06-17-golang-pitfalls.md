@@ -1,11 +1,4 @@
----
-layout: post
-title: "Pitfalls in Go"
-description: ""
-category:
-tags: []
----
-{% include JB/setup %}
+# Pitfalls in Go"
 
 ## `break` in `select` or `switch` and in `for`
 

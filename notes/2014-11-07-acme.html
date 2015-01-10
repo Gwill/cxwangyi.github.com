@@ -1,0 +1,263 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>介绍Acme文本编辑器</h1>
+
+<h3>摘要</h3>
+
+<p>文本编辑是每个计算机用户的每日工作。其中最耗时的操作莫过于移动光标到想去的地方。</p>
+
+<p>一般的编辑器通常会让用户的手在键盘和鼠标之间频繁移动。比如用鼠标移动光标，选中一段文本，然后按Ctrl-X“剪切”，再用鼠标移动光标到某个位置，然后按Ctrl-V“粘贴”。</p>
+
+<p>Vim和Emacs强调用键盘编辑。为此Vim定义了Esc开头的一系列操作，而Emacs定义了很多组合按键方式，来避免了用户的手在键盘和鼠标之间来回移动。</p>
+
+<p>Acme强调用鼠标而不是键盘。鼠标光标可以快速移动到用户想去的地方，然后用鼠标组合按键——按住左键的同时按中键来“剪切”，放下中键按下右键表示“黏贴”——合起来就成了“拷贝”。</p>
+
+<p>在最近学用Acme之前我是个12年的Emacs老用户。我上手Acme比当初上手Emacs快，因为Acme可以通过鼠标选择菜单工作，而Emacs最初的打开文件等几个组合键需要背下来。</p>
+
+<h2>从Plan 9说起</h2>
+
+<p><a href="http://acme.cat-v.org/">Acme</a>是一个<a href="http://en.wikipedia.org/wiki/Plan_9_from_Bell_Labs">Plan 9</a>操作系统上的文本编辑器。Acme的理念和我们在Windows和Unix（包括Linux和Mac OS X）的世界里形成的理念很不一样。而Acme的理念实际上是Plan 9的理念。所以我们得先说说Plan 9。</p>
+
+<p>Plan 9不是一个很知名的作品，但是它的前身Unix是世人皆知的。而Plan 9是Unix的几位作者在AT&amp;T职业生涯的一件巅峰之作，是被设计来超越Unix的。实际上，Plan 9在1992年第一次发布时，就同时实现了Google Docs、Dropbox、Github、Remote Desktop等目前很火爆的互联网产品的功能。</p>
+
+<p>Plan 9能做到这些，是因为它把所有内容都注册到一个称为<a href="http://en.wikipedia.org/wiki/9P">9P</a>的文件系统里。举个例子，一个Acme编辑器进程会对应9P中的一个目录<code>acme</code>——我们可以用<code>9p ls acme</code>命令看到这个目录；这个编辑器中的每个窗口对应一个子目录，而窗口标题，编辑内容分别是这个子目录里的文件——我们可以通过修改文件内容（比如通过调用一个shell script）来改变标题和编辑内容。</p>
+
+<p>因为9P是个分布式的文件系统（类似后来的Google GFS和Hadoop HDFS），所以不管用户身在何处（公司、家里、旅馆、咖啡馆）都能看到同一个文件系统。甚至可以在家里的电脑上修改办公室电脑上运行的一个ACME的某个窗口里的内容。或者回家之后，让家里的电脑上运行的ACME访问办公室电脑上的ACME对应的目录，就看到了和办公室电脑上同样的界面——比远程桌面加上Dropbox更加远程桌面和Dropbox。</p>
+
+<h2>从Plan 9到Mac OS X</h2>
+
+<p>Plan9没有推广起来，一个原因是它的思想太过领先——在用户还没有意识到存在这样的问题的时候，就把问题解决了。想当年Google Docs一开始做市场推广的时候，很多用户还不相信文件存储在云端的安全性呢，更别说从client到browser了。另一个原因恐怕和AT&amp;T作为电信公司被互联网冲击而衰落有关。详情请参见吴军博士的《浪潮之巅》。</p>
+
+<p>不管Plan9的命运如何，它背后的团队可算是计算机科学历史上最耀眼的团队之一：</p>
+
+<ul>
+<li>Ken Thompson：Unix、B语言（C语言前辈）、UTF-8，Go语言。2006年加入Google</li>
+<li>Rob Pike：UTF-8、Go语言、Sawzall语言。2006年加入Google。</li>
+<li>Dave Presotto：Unix的IPC机制。2004年加入Google，是Google最高权力机构“工程大师团”的成员。</li>
+<li>Phil Winterbottom：PLANET高速通信网络、Inferno操作系统</li>
+</ul>
+
+
+<p>其中Ken和Rob到Google之后设计了最近非常流行的Go语言。我第一次见到Go的吉祥物Gopher的时候，就觉得其漫画风格和Plan9的吉祥物Glenda一样一样儿的。放狗一搜，发现原来设计师真是同一个人——Renee French。这背后的故事，请看这篇文章<a href="http://glenda.cat-v.org/friends/">《Glenda and Friends》</a>。简化版本是——Renee是Rob Pike的夫人。</p>
+
+<p>实际上，我知道Acme就是因为看到Rob Pike的徒弟、Go的设计者之一Russ Cox用Acme。Russ是Go和Google Code Search的作者。他多年坚持用一台老旧的Mac mini搞开发，并且甚为<a href="http://russ.cox.usesthis.com/">自豪</a>。（因为不浪费粮食又环保。）</p>
+
+<p>Russ离开AT&amp;T加入Google之后忍不住怀念Plan 9，所以把Plan 9上的用户程序——包括Acme——移植到Mac OS X上，称为<a href="http://swtch.com/plan9port/">Plan 9 from User Space</a>。大家可以方便地下载源码，然后在自己的苹果电脑上编译这套代码。</p>
+
+<p>Plan 9 from User Space这个名字很有意思——Plan 9这个名字其实来自一部1959年美国科幻电影《Plan 9 from Outer Space》。</p>
+
+<h2>从键盘到鼠标</h2>
+
+<p>Plan 9的故事就此收尾了。回到Acme。</p>
+
+<p>要描述一个文本编辑器，难免需要和伟大的Vim以及Emacs做类比。可是Acme和Vim，Emacs完全不是一个路子——Vim和Emacs是充分利用键盘的，Acme是充分利用鼠标的。（真是瞬间轰平Vim和Emacs比拼的大坑。）</p>
+
+<p>我曾经用过很多年的Vim。读博士的时候看到同学王垠用Emacs，被Emacs可是展示图像和PDF文件、预览LaTeX和Graphviz源码给震撼了，从此踏上了Emacs之路，至今已经有12年了。目前的工作标配是Kinesis键盘+Logitech trackball+Emacs。</p>
+
+<p>我看到很多Vim和Emacs的用户都在某种程度上追求牛鼻的键盘——机械按键、人体工学设计、甚至功能键的重新布局。这是因为我们大量按键。可我们的主要按键都花在哪儿了呢？</p>
+
+<ol>
+<li>顺序输入</li>
+<li>编辑</li>
+</ol>
+
+
+<p>其实通常编辑是主流，长篇顺序输入不多。而编辑的主要操作包括：</p>
+
+<ol>
+<li>移动光标到特定位置</li>
+<li>剪切、拷贝、粘贴</li>
+<li>小篇幅的输入</li>
+</ol>
+
+
+<p>其中移动光标占据了绝大数多的敲键次数——设想一段常见的工作方式（以Emacs为例）：</p>
+
+<ol>
+<li>先移动到段落开始，(Ctrl-Shift-a)</li>
+<li>向下一行，(Ctrl-n)</li>
+<li>移动四个词，（Alt-f, Alt-f, Alt-f, Alt-f）</li>
+<li>选取接下来半句话，（Ctrl-Shift-2, Alt-e）</li>
+<li>剪切，（Ctrl-w）</li>
+<li>移动到下一段开始，（Ctrl-Shift-e）</li>
+<li>移动一行，（Ctrl-n）</li>
+<li>移动两个字符，（Ctrl-f, Ctrl-f）</li>
+<li>粘贴，（Ctrl-y）</li>
+</ol>
+
+
+<p>一共14个组合键。</p>
+
+<p>而如果用Acme呢：</p>
+
+<ol>
+<li>移动鼠标到半句话开头处</li>
+<li>按住鼠标左键选择那半句话，不放左键，按一下中键</li>
+<li>移动鼠标到目标位置</li>
+<li>按住左键的同时按一下右键</li>
+</ol>
+
+
+<p>要说比速度——就像最快的算盘手和计算机比算数一样。</p>
+
+<h2>用任意编程语言写插件</h2>
+
+<p>现在很多编辑器都提供脚本语言，来写插件。尤其是Emacs的Emacs Lisp堪称Lisp方言中的经典。用Emacs Lisp为Emacs写插件，很像用Javascript操作DOM，因为Emacs把内部状态暴露出来，使得Emacs Lisp程序可以访问。</p>
+
+<p>Acme和所有Plan 9上的用户程序一样，把内部状态通过9P文件系统暴露出来。这样一来，任何语言写的程序都可以访问了。最常见的程序是脚本程序。Plan 9上的标准shell程序叫<code>9</code>，它提供一种脚本语言，比Unix下的bash等脚本语言更接近我们常用的高级语言。比如这个只有几行的脚本<a href="http://acme.cat-v.org/scripts/agofmt"><code>Agofmt</code></a>调用Go语言写的程序<code>gofmt</code>自动排版当前正在编写的Go语言源代码为标准格式。</p>
+
+<p>如果要执行一个程序，只需要在任何地方写下这个程序的名字，然后又见点一下名字即可。比如在一个源码编辑窗口的菜单栏上写上<code>Agofmt</code>——对，菜单栏也可以写字——就相当于创建了一个新的菜单选项。</p>
+
+<p>不仅可以用shell脚本语言可以写Acme插件，其实任何语言都可以。比如这是一个<a href="https://code.google.com/p/go9p/">Go语言的package</a>，用来访问9P文件系统。这使得我们也可以用Go语言为Acme写插件。</p>
+
+<h2>下载和安装</h2>
+
+<p>我们花了不少篇幅介绍Acme和常见的文本编辑器在理念上的不同。接下来我们终于可以开始说说如何安装Acme了。</p>
+
+<p>要安装Acme最好是下载和安装Plan 9 from User Space，其中包括Acme和其他Plan 9操作系统的用户程序，比如shell——<code>rc</code>，9P文件系统访问程序——<code>9p</code>等。</p>
+
+<p>Plan 9 from User Space支持以下操作系统</p>
+
+<ul>
+<li>Linux</li>
+<li>Mac OS X</li>
+<li>FreeBSD, NetBSD, OpenBSD</li>
+<li>SunOS</li>
+</ul>
+
+
+<p>下载地址是：<a href="http://code.google.com/p/plan9port/downloads/list">http://code.google.com/p/plan9port/downloads/list</a></p>
+
+<p>Russ Cox一直勤劳地维护着Plan 9 from User Space，不断更新代码。我下载的版本是<code>plan9port-20140306.tgz</code>。</p>
+
+<p>接下来的工作很简单：解压、编译：</p>
+
+<pre><code>cd /usr/local
+sudo tar xzf plan9port-20140306.tgz
+mv plan9port plan9
+cd plan9
+./INSTALL
+</code></pre>
+
+<p>这样就好了。随后修改一下Bash初始化文件，让Bash知道Plan 9程序安装在哪儿了：</p>
+
+<pre><code>export PLAN9=/usr/local/plan9
+export PATH=$PLAN9/bin:$PATH
+</code></pre>
+
+<p>此时，只要运行</p>
+
+<pre><code>acme
+</code></pre>
+
+<p>即可看到Acme窗口。但是其中的默认字体不怎么样。请用按Ctrl-C杀掉Acme。等配置好字体再启动它。</p>
+
+<h2>配置字体</h2>
+
+<p>Acme的默认字体是一种点阵字体，但是Acme也可以通过一个叫<code>fontsrv</code>的程序访问TrueType字体。</p>
+
+<p><code>fontsrv</code>是一个Plan 9 from User Space程序，它读取操作系统安装的TrueType字体，解码之后，注册到9P文件系统里，作为默认字体的补充。Acme即可访问。</p>
+
+<p>但是<code>fontsrv</code>默认是不被编译安装的。为了安装它，需要：</p>
+
+<pre><code>cd $PLAN9/src/cmd/fontsrv
+mk install
+</code></pre>
+
+<p>其中<code>mk</code>是Plan 9里类似GNU make的程序。正确安装之后，应该能看到<code>$PLAN9/bin/fontsrv</code>。</p>
+
+<p>运行<code>fontsrv</code>很简单：</p>
+
+<pre><code>fontsrv &amp;
+</code></pre>
+
+<p>争取执行之后，应该能用<code>9p</code>命令看到<code>fontsrv</code>注册进9P的字体：</p>
+
+<pre><code>9p ls font
+</code></pre>
+
+<p>然后我们可以重新启动Acme，并指定我们喜欢的字体：</p>
+
+<pre><code>acme -a -f /mnt/font/Consolas/13a/font &amp;
+</code></pre>
+
+<p>使用TrueType字体之前的Acme是这样的：</p>
+
+<p><img src="https://raw.githubusercontent.com/cxwangyi/cxwangyi.github.com/master/images/acme-pointfont.png" alt="" /></p>
+
+<p>用了之后是这样的</p>
+
+<p><img src="https://raw.githubusercontent.com/cxwangyi/cxwangyi.github.com/master/images/acme-truetype-font.png" alt="" /></p>
+
+<h2>使用方法</h2>
+
+<p>Russ Cox录制了一段<a href="https://www.youtube.com/watch?v=dP1xVpMPn8M">Youtube视频</a>，演示Acme的使用方法。这是我在Youtube上找到的最靠谱Acme介绍。因为Acme频繁使用鼠标的三个按键，而Youtube视频不方便同时展示Acme的屏幕界面和Russ的手指动作，所以Russ修改了Acme的源码，使得每当他按键的时候，鼠标光标附近会弹出一个数字，标志他按的鼠标按键。</p>
+
+<p>Russ的视频的唯一问题是：他的英语说得太快了——似乎在赶时间。而且他的Youtube视频没有字幕。为此，我充当了一会翻译，把他的视频配上了英语字幕。你可以用<a href="http://keepvid.com/">KeepVid</a>之类的在线工具下载Russ的视频，然后从我的<a href="https://github.com/wangkuiyi/RussCoxAcmeTourSubtitle">Github repository</a>下载字幕，然后用<a href="http://www.videolan.org/vlc/index.html">VLC Player</a>之类的视频播放器观看这个视频。VLC Player会展示字幕。</p>
+
+<h2>Acme文件系统</h2>
+
+<p>上文中我们说过，当我们在Plan 9操作系统里使用Acme的时候，Acme会把自己的内容都注册到9P文件系统里，这样我们即可用任何语言写程序来操作Acme的窗口内容了。但是实际上我们通常是在Mac OS X、Linux或者BSD里使用Acme的。Acme也可以把自己的内容注册到这些操作系统的文件系统里。但是需要FUSE的帮助。</p>
+
+<p>以下我们展示如何让Acme注册自己到Mac OS X的文件系统里。为此，我们需要安装<a href="http://osxfuse.github.io">FUSE for OS X</a>。这一步很简单，下载<code>.dmg</code>镜像文件，并且安装即可。需要注意的是——别把FUSE for OS X和MacFUSE搞混了。</p>
+
+<p>随后，我们执行以下命令创建一个mount point：</p>
+
+<pre><code>sudo mkdir -p /mnt/acme
+sudo chmod -R a+rwx /mnt
+</code></pre>
+
+<p>然后启动Acme（用<code>fontsrv</code>支持Acme使用TrueType字体）：</p>
+
+<pre><code>fontsrv &amp;
+acme -a -f /mnt/font/Consolas/13a/font &amp;
+</code></pre>
+
+<p>把Acme注册进<code>/mnt/acme</code>：</p>
+
+<pre><code>9 mount `namespace`/acme /mnt/acme
+</code></pre>
+
+<p>我们可以看看Acme在<code>/mnt/acme</code>目录里写了什么：</p>
+
+<pre><code>ls -l /mnt/acme
+dr-x------  1 yiwang  101  0 Nov 10 09:16 1
+dr-x------  1 yiwang  101  0 Nov 10 09:16 2
+dr-x------  1 yiwang  101  0 Nov 10 09:16 acme
+-rw-------  1 yiwang  101  0 Nov 10 09:16 cons
+-r--------  1 yiwang  101  0 Nov 10 09:16 index
+-rw-------  1 yiwang  101  0 Nov 10 09:16 label
+dr-x------  1 yiwang  101  0 Nov 10 09:16 new
+</code></pre>
+
+<p>其中子目录<code>1</code>对应Acme的第一个窗口。这个窗口的tag上有几个默认的命令。我们可以从用户界面上看到：</p>
+
+<p><img src="https://raw.githubusercontent.com/cxwangyi/cxwangyi.github.com/master/images/acme-window-small.png" alt="" /></p>
+
+<p>我们也可以从文件系统里读出来：</p>
+
+<pre><code>cat /mnt/acme/1/tag
+/Users/yiwang/Projects/fy/src/github.com/ Del Snarf Get | Look
+</code></pre>
+
+<p>既然可以读，不妨试试写：</p>
+
+<pre><code>echo "Del" &gt;&gt; /mnt/acme/1/tag
+</code></pre>
+
+<p>我们发现，在第一个窗口的tag里，增加了一个Del命令：</p>
+
+<p><img src="https://raw.githubusercontent.com/cxwangyi/cxwangyi.github.com/master/images/acme-window-small-more-command.png" alt="" /></p>
+
+<p>此时，我们再次从文件系统里读，会看到这个被<code>echo</code>命令加入tag的Del命令：</p>
+
+<pre><code>cat /mnt/acme/1/tag
+/Users/yiwang/Projects/fy/src/github.com/ Del Snarf Get | Look Del
+</code></pre>
+</html>

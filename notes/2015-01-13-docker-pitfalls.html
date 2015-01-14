@@ -1,0 +1,59 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <meta name="author" content="Yi Wang" />
+   <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+   <link rel="shortcut icon" href="http://cxwangyi.github.io/images/yi.png">
+</head>
+<body>
+<h1>Docker Pitfalls</h1>
+
+<h3>Connect i/o timeout</h3>
+
+<h4>Error</h4>
+
+<p><code>docker version</code> command complains</p>
+
+<pre><code>FATA[0032] An error occurred trying to connect: Get https://192.168.59.103:2376/v1.16/version: dial tcp 192.168.59.103:2376: i/o timeout 
+</code></pre>
+
+<p>while <code>docker upgrade</code> shows that the client tne the server are of the same version (which means they should work together).</p>
+
+<h4>Diagnosis</h4>
+
+<p>The problem is because that I had created a host-only network <code>vboxnet0</code> before in an experiment of building a VM cluster using VirtualBox on my Mac mini, and <code>boot2docker init</code> would also create a boot2docker VM that uses <code>vboxnet0</code>.  However, boot2docker VM expects that the local network <code>vboxnet0</code> has IP prefix 192.168.53.xxx, whereas my <code>vboxnet0</code> has another IP prefix.</p>
+
+<h4>Solution</h4>
+
+<p>The solution is simple:</p>
+
+<ol>
+<li><p>Stop and destory boot2docker VM:</p>
+
+<pre><code> boot2docker stop
+ boot2docker destroy
+</code></pre></li>
+<li><p>Delete my <code>vboxnet0</code> local network from VirtualBox.</p></li>
+<li><p>Recreate boot2docker VM and start it:</p>
+
+<pre><code> boot2docker init
+ boot2docker up
+ docker version
+</code></pre></li>
+</ol>
+
+
+<h3>No space left on device</h3>
+
+<h4>Error</h4>
+
+<p>When I run <code>docker build</code>, it complains not enough disk space.</p>
+
+<h4>Diagnosis</h4>
+
+<p>When above error happends with boot2docker, it means that the boot2docker VM, other than using has not enough disk space.</p>
+
+<h4>Solution</h4>
+
+<p>Clone the VMDK disk image created by <code>boot2docker init</code> into a VDI image, enlarge it, mount it to VM, and repartition it.  More details can be found <a href="https://docs.docker.com/articles/b2d_volume_resize/">here</a>.</p>
+</body></html>
